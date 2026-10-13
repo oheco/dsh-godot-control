@@ -1,0 +1,16 @@
+{
+  "name": "@oheco/dsh-godot-control",
+  "version": "0.1.0",
+  "description": "Native DSH tools for Godot through authenticated WebSocket, without Python or MCP.",
+  "type": "module",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/oheco/dsh-godot-control.git" },
+  "exports": { ".": "./main.js", "./client": "./client.mjs", "./package.json": "./package.json", "./locale/*.json": "./locale/*.json" },
+  "files": ["main.js", "client.mjs", "server.js", "protocol.js", "operations.js", "commands.json", "dependencies.json", "godot", "scripts", "test", "tpr", "locale", "cordis.patch.yml", "README.md", "VERIFICATION.md", "LICENSE", "THIRD_PARTY.md"],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": { "platform": "web", "immediately": true, "inject": ["@deepseek-ai/dsh-client-ui-plugin-manager", "@deepseek-ai/dsh-client-connection", "@deepseek-ai/dsh-client-locale"] }
+  },
+  "scripts": { "build": "node scripts/build-addon.mjs", "check": "node scripts/check.mjs", "test": "node --test test/*.test.js", "test:native": "node scripts/native-test.mjs", "package": "node scripts/package.mjs" },
+  "engines": { "node": ">=24" }
+}

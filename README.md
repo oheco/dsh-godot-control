@@ -1,260 +1,65 @@
-<p align="center">
-  <img src="docs/hero.png" alt="Godot AI — The wait is over" width="700">
-</p>
+# DSH Godot Control
 
-# Godot AI
+让 DSH 直接操作 Godot 编辑器。DSH 插件提供原生工具与本机 WebSocket 服务，Godot 插件执行编辑器命令；运行时使用 DSH 自带 Node.js 和 Godot，不需要 Python、MCP 服务或另外启动的桥接进程。
 
-[![CI](https://github.com/hi-godot/godot-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/hi-godot/godot-ai/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/hi-godot/godot-ai/graph/badge.svg)](https://codecov.io/gh/hi-godot/godot-ai)
-[![Discord](https://img.shields.io/badge/Discord-Join%20chat-5865F2?logo=discord&logoColor=white)](https://discord.gg/FDZ5fr2QkP)
+目标环境：HarmonyOS PC ARM64、DSH 0.2.0-rc.2、Godot 4.7 及更新的 4.x。编辑器操作基于 Godot AI v4.3.0；验证范围见 [VERIFICATION.md](VERIFICATION.md)，第三方输入见 [THIRD_PARTY.md](THIRD_PARTY.md)。
 
-**Godot AI connects Claude Code, Claude Desktop, Codex, Hermes Agent, and other
-[MCP](https://modelcontextprotocol.io/introduction) clients to a live Godot
-editor.** Its [46 tools and 120+ operations](docs/TOOLS.md) let AI assistants
-build scenes, edit nodes and scripts, wire signals, and configure UI, materials,
-animation, particles, cameras, and environments.
+## 安装与配对
 
-<p align="center">
-  <img src="docs/images/huddemo.gif" alt="Cyberpunk HUD demo" width="800"><br>
-  <em>Built in ~2 hours with Godot AI, without hand-written code or image generation — <a href="https://github.com/hi-godot/cyberpunk-hud-demo">source</a></em>
-</p>
+1. 下载并解压 [Release](https://github.com/oheco/dsh-godot-control/releases/latest) 中的 ZIP。DSH 插件管理页选择“从本地目录安装”，选择含 `package.json` 的外层目录，启用 `@oheco/dsh-godot-control`。
+2. 将包内 `godot/addons/dsh_godot` 目录复制到 Godot 项目的 `addons` 中，在“项目设置 → 插件”启用 **DSH Godot Control**。这个 addon 与原版 Godot AI 使用不同目录和类名。
+3. 打开 DSH 插件详情的“Godot 配对”面板，复制连接令牌。地址中的端口默认为 `9500`；令牌仅在点击显示或复制时读取。
+4. 在 Godot 的 **DSH Godot** 面板填写端口与令牌，点击“保存配对并连接”。回到 DSH 刷新状态，显示项目路径即完成配对。
 
-## Quick Start
+配对在编辑器的私有配置目录中持久化，不写入项目、EditorSettings 或发行包。Godot 断线后自动重连；DSH 关闭或卸载插件会释放监听端口并结束待处理调用。目录安装可能持续引用原目录，请保留安装目录。端口冲突会在 DSH 插件加载时明确报错，可同时修改 DSH 保存配置和 Godot 配对端口。
 
-### Requirements
+## 使用
 
-- Godot **4.7+** within the 4.x line for Godot AI v4
-- [uv](https://docs.astral.sh/uv/getting-started/installation/), which provides
-  `uvx` for the Python server
-- An MCP client
+可以直接对 DSH 说：“读取当前 Godot 场景，在 Main 下创建一个 Player 节点，将位置改成 1、2、3，然后保存场景。”
 
-**Script languages.** GDScript is fully supported: scripts written through
-the tools are parse-validated, hot-reloaded, attached, and outlined. C# is
-**text-only**: `script_create` / `script_patch` write `.cs` files and
-`script_manage(op="find_symbols")` outlines them, but Godot AI does not build
-.NET or report C# compiler errors. Build in the editor and inspect its Build
-panel, or run `dotnet build` and inspect the terminal output.
-Attaching a `.cs` needs a .NET-enabled editor build.
-Details: [C# support](docs/TOOLS.md#c-support).
+| 工具 | 用途 |
+| --- | --- |
+| `godot_status` | 连接状态、项目、会话 ID 与就绪状态 |
+| `godot_commands` | 查询命令、领域、参数提示和执行条件 |
+| `godot_scene_tree` | 当前场景树，支持深度和分页 |
+| `godot_scene` | 创建、打开、保存场景与节点查找 |
+| `godot_node` | 节点创建、属性、层级、分组与选择 |
+| `godot_script` | 脚本读写、修改与挂载 |
+| `godot_project` | 项目设置、运行与停止游戏 |
+| `godot_editor` | 编辑器状态、日志、截图和调试 |
+| `godot_command` | 资源、材质、动画、UI、物理、音频等其他命令 |
 
-### 1. Install or update
+命令列表由上游编辑器注册表生成，共 161 项。使用插件命令名，例如 `create_node`，参数位于 `params`。`godot_commands` 提供字段提示；具体命令的完整语义沿用上游 GDScript handler。多个编辑器同时连接时，调用必须传入 `godot_status` 返回的 `session_id`。
 
-**New project:** choose a published version from
-[GitHub Releases](https://github.com/hi-godot/godot-ai/releases) and follow its
-verification and installation instructions. The add-on belongs at
-`your-project/addons/godot_ai/`, with `plugin.cfg` inside that directory.
-Use the release's requirements and package—not a source snapshot copied over
-an existing installation.
+例如调用 `godot_node`：
 
-**Existing installation:** click **Update** in the Godot AI dock when an update
-is offered. The final signed v3 release supports a one-click migration to v4;
-Godot restarts once and owned, supported client entries are migrated
-automatically. Do not extract a new add-on over the old tree. See the
-[v3 → v4 migration guide](docs/v4-migration.md) for compatibility and recovery.
-
-For development from source, use the [contributor setup](docs/CONTRIBUTING.md).
-
-### 2. Enable the plugin
-
-In Godot: **Project → Project Settings → Plugins → Godot AI**.
-
-The plugin starts the MCP server and shows connection status in the **Godot AI**
-dock. If it is missing from the plugin list, check that the file is at
-`addons/godot_ai/plugin.cfg`, not `addons/plugin.cfg`.
-
-### 3. Connect your MCP client
-
-In the dock, press **Configure** next to your client, or **Configure all** for
-every detected client. If the client does not notice the new configuration,
-restart that client.
-
-Supported clients include **Claude Code**, **Claude Desktop**, **Codex**,
-**Antigravity**, **Hermes Agent**, **DeepSeek Harness**, **Cursor**,
-**VS Code**, and **Oh My Pi** (manual configuration).
-The dock lists all supported clients and provides a **Run this manually**
-fallback where needed.
-
-Use the dock-generated command: it includes the matching version, ports,
-resolver options, and excluded tool domains. V4 uses `godot-ai attach` over
-stdio; a bare `http://127.0.0.1:8000/mcp` entry cannot authenticate or follow
-capability rotation. Updates repin owned client entries automatically;
-reconfigure after changing ports, telemetry preferences, or tool domains.
-
-**Client exceptions:** Pi Coding Agent needs an MCP extension that reads
-`~/.pi/agent/mcp.json`. Cherry Studio is not supported in v4; remove stale v3
-entries in Cherry Studio itself.
-
-<details>
-<summary><strong>Per-project configuration</strong></summary>
-
-CLI-configured clients default to global `user` scope. Set **Editor Settings →
-Plugins → `godot_ai/mcp_client_scope`** to `project` (or `local`, where supported),
-then press **Configure** again.
-
-**Configure** removes existing `godot-ai` entries from every scope before
-writing the selected one. This can modify a checked-in `.mcp.json`, but does not
-touch other server entries. **Remove** affects only the selected scope.
-
-Launch Godot from the project directory so the client CLI writes configuration
-in the right place. Claude Code also requires one-time approval from `claude`
-run inside that project.
-
-</details>
-
-### 4. Try it
-
-- *"Show me the current scene hierarchy."*
-- *"Create a Camera3D named MainCamera under /Main."*
-- *"Search the project for PackedScene files in ui/."*
-- *"Run the scene test suite."*
-- *"Build a voxel block-world game with a player, blocks to place and destroy, and save slots."*
-
-<p align="center">
-  <img src="docs/images/blockarena.gif" alt="Block-world game built with Godot AI" width="640"><br>
-  <em>A block-world game with a save system, built from a handful of prompts — <a href="https://github.com/dsarno/save-system-godot-claude">source</a></em>
-</p>
-
-## How it works
-
-```text
-MCP client
-  → godot-ai attach (stdio)
-  → Python server (authenticated HTTP, port 8000)
-  → Godot editor plugin (authenticated WebSocket, port 9500)
+```json
+{
+  "command": "set_property",
+  "params": {
+    "path": "/Main/Player",
+    "property": "position",
+    "value": {"x": 1, "y": 2, "z": 3}
+  }
+}
 ```
 
-Both local hops use independent rotating capabilities; neither falls back to
-unauthenticated access. The editor WebSocket stays loopback-only. An agent in
-a container or on another machine runs the bridge on the editor machine over
-SSH; see [Agents on another machine or in a container](docs/client-configuration.md#agents-on-another-machine-or-in-a-container).
+场景修改保留 Godot 撤销记录；保存场景和文件写入直接持久化。修改前会读取编辑器的当前就绪状态；导入中拒绝修改，运行中仅允许适用的运行控制命令。超时、取消或断线不会自动重放操作，已经执行的编辑器操作也不会因取消而回滚，请先检查状态再决定重试。
 
-These controls do not protect against a compromised same-user process. Windows
-also does not claim isolation from other local accounts. See the
-[security model](docs/plugin-architecture.md#security-model) and
-[package trust boundaries](docs/packaging-distribution.md).
+## 协议与开发
 
-## Telemetry and privacy
+连接仅监听 `127.0.0.1`，使用 Godot AI 协议 2 的四步双向 HMAC-SHA256 认证。项目元数据在 Godot 验证服务端证明后发送，请求响应通过 `request_id` 匹配到原连接。握手期限为 5 秒，握手消息上限 8 KiB，普通消息上限 4 MiB，编辑器最多 32 个。接收缓冲在认证前也可能接收一个 4 MiB WebSocket 消息，8 KiB 是握手解析限制。凭据不进入工具状态或模型上下文。
 
-Usage telemetry records an installation UUID, event, outcome, duration,
-platform, and version—not code, scene contents, or project/file names.
-Project-directory slugs are hashed before transmission.
+依赖源码已固定并随包提供，检查与构建不下载依赖：
 
-Opt out with `GODOT_AI_DISABLE_TELEMETRY=true` or `DISABLE_TELEMETRY=true`.
-Opt-out creates no telemetry UUID, worker, or files.
-[Privacy details and editor settings](docs/TELEMETRY.md).
-
-## Documentation and help
-
-<details>
-<summary>Bazzite / Fedora Atomic troubleshooting</summary>
-
-On Bazzite and other Fedora Atomic desktops, `/home` is normally a symbolic
-link to `/var/home` (the ostree layout). Godot AI 4.0.2 and earlier refuse
-every capability-directory path that passes through a link, so on such a
-system the server exits with `Last pending: capability_record`
-([#993](https://github.com/hi-godot/godot-ai/issues/993)). In Godot AI 4.0.3 and later,
-the server follows a link when it is root-owned and sits in a root-owned directory that
-other accounts cannot write, which is exactly that layout; no configuration is
-needed there.
-
-On 4.0.2 or earlier, close Godot and your MCP client, then run this in a
-terminal as your normal user:
-
-```bash
-export GODOT_AI_CAPABILITY_DIR="$(
-  realpath -m "${XDG_CONFIG_HOME:-$HOME/.config}/godot-ai/capabilities"
-)"
-install -d -m 700 "$GODOT_AI_CAPABILITY_DIR"
-printf 'Using: %s\n' "$GODOT_AI_CAPABILITY_DIR"
+```sh
+npm run build
+npm run check
+npm test
+npm run test:native
+npm run package
 ```
 
-Launch **both Godot and your MCP client from that terminal** so the backend and
-`godot-ai attach` inherit the same directory. A desktop launcher does not
-automatically inherit a terminal's `export`; for persistent use, set the same
-canonical path in the launch environment of both applications. Keep the
-directory private to your user; do not copy capability tokens into client
-configuration. This workaround is for Linux; `GODOT_AI_CAPABILITY_DIR` is not
-supported on Windows.
+`GODOT_BIN` 可指定验证用编辑器；真实测试使用 `$TMPDIR` 下独立项目，日志与报告写入 `$XDG_CACHE_HOME/dsh-godot-control/verification/`。`DSH_GODOT_ALLOW_HEADLESS=1`、`DSH_GODOT_WS_PORT` 和 `DSH_GODOT_TOKEN` 供隔离验收使用。普通用户在面板中配对。
 
-</details>
-
-<details>
-<summary>Linux startup: Steam, Flatpak, and directory permissions</summary>
-
-Godot AI 4.2.2 and later read process identity and listening-socket ownership
-from `/proc`, so Steam and Flatpak runtimes do not need to provide `ps`, `lsof`,
-or `ss`. These checks stay inside the editor's sandbox; host PIDs are not used
-to authorize stopping a sandbox process. The backend launcher still needs to
-be installed and executable within that environment.
-
-Steam pressure-vessel can expose `/home -> /var/home` as a user-owned link.
-Godot AI 4.2.2 and later accept root- or current-user-owned links beneath
-protected parents and validates every target ancestor. Other-user ownership,
-writable parents, and symlink loops remain rejected.
-
-Flatpak and Steam's runtime run in a user namespace that maps only your own
-user. The host's root-owned `/home` (`/var/home` on Fedora Atomic, Bazzite, and
-other ostree systems) then reads back as an owner the sandbox cannot name,
-usually UID 65534, and Godot AI 4.2.3 and earlier refuse to start there. Later
-versions do not test the owner of a directory above your home directory when
-they run inside such a namespace, which is where OpenSSH's `StrictModes` stops
-too. That directory must still be closed to group and other writes. Your home
-directory and everything below it must still belong to you or root. Nothing is
-relaxed outside a user namespace, or inside one where UID 65534 is a real
-account, as in a rootless container that maps a subordinate ID range.
-
-A Flatpak editor that shares your home directory, as the Flathub Godot build
-does by default, publishes its credentials under the host's `~/.config/godot-ai`
-(or the host's `XDG_CONFIG_HOME`) instead of Flatpak's per-app config
-directory, so an AI client outside the sandbox finds them without configuration.
-
-**Configure** from that editor writes client settings to the same host
-directories. Install `uv` with its standalone installer, so that `uvx` is in
-`~/.local/bin`: the sandbox cannot see a system package in `/usr/bin`. An IDE
-that is itself a Flatpak (VS Code, Zed) keeps its settings under its own
-`~/.var/app/<id>`, which a Flatpak Godot cannot see. Configure then stops and
-prints the `flatpak override` command that grants access; run it and restart
-Godot. Details:
-[client configuration](docs/client-configuration.md#linux-flatpak-editors-and-flatpak-clients).
-
-If you took that home access away from Godot (Flatseal, or
-`flatpak override --nofilesystem=host`), its sandbox cannot reach the files
-your AI clients read. Configure and Remove then stop and name the
-`flatpak override` that restores access, instead of writing a file only the
-sandbox can see.
-
-Use the [explicit shared-directory guide](docs/steam-capability-directory.md)
-on 4.2.3 and earlier, for a Flatpak editor that does not share your home
-directory, and whenever the startup error still names an untrusted ancestor
-owner. Do not chmod or chown system directories to work around it.
-
-If the selected credential path has group- or world-writable ancestors (for
-example `775` or `777`), startup remains blocked. The plugin lists the existing
-directories with problematic permissions before launching the server.
-Review their ownership and intended sharing; if you own them and
-shared write access is not intentional, `chmod go-w /exact/directory` removes
-group/other write access from that directory. Do not use recursive chmod.
-Godot AI does not change your home or config directory permissions itself.
-
-</details>
-
-### Reference and support
-
-- [Tools, operations, and resources](docs/TOOLS.md)
-- [Community addons and custom tools](docs/community-addons.md)
-- [Write and run tests for your game](docs/testing.md)
-- [Client configuration details](docs/client-configuration.md)
-- [Upgrading from v3 and recovering interrupted migrations](docs/v4-migration.md)
-- [Changelog](CHANGELOG.md)
-- [Contributing and development setup](docs/CONTRIBUTING.md)
-- [Discord](https://discord.gg/FDZ5fr2QkP) for questions and showcases;
-  [GitHub Issues](https://github.com/hi-godot/godot-ai/issues) for bug reports
-
-## Star History
-
-<!-- Generated by .github/workflows/star-history.yml on the star-history branch. -->
-<a href="https://github.com/hi-godot/godot-ai/stargazers">
-  <img src="https://raw.githubusercontent.com/hi-godot/godot-ai/star-history/star-history.svg" alt="Star History Chart" width="700">
-</a>
-
-**License:** [MIT](LICENSE)
+卸载时先在 DSH 中移除 bundle，再关闭 Godot 项目中的插件并移除 addon。配对配置默认保留，方便重装。

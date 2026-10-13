@@ -1,0 +1,1937 @@
+[
+  {
+    "command": "get_editor_state",
+    "group": "editor",
+    "method": "get_editor_state",
+    "parameter_hints": [],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "get_scene_tree",
+    "group": "scene",
+    "method": "get_scene_tree",
+    "parameter_hints": [
+      "depth",
+      "offset",
+      "limit"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "get_open_scenes",
+    "group": "scene",
+    "method": "get_open_scenes",
+    "parameter_hints": [],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "find_nodes",
+    "group": "scene",
+    "method": "find_nodes",
+    "parameter_hints": [
+      "name",
+      "type",
+      "group"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "create_scene",
+    "group": "scene",
+    "method": "create_scene",
+    "parameter_hints": [
+      "root_type",
+      "path",
+      "root_name"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "open_scene",
+    "group": "scene",
+    "method": "open_scene",
+    "parameter_hints": [
+      "path",
+      "force_reload",
+      "_request_id"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "save_scene",
+    "group": "scene",
+    "method": "save_scene",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "save_scene_as",
+    "group": "scene",
+    "method": "save_scene_as",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "get_selection",
+    "group": "editor",
+    "method": "get_selection",
+    "parameter_hints": [],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "create_node",
+    "group": "node",
+    "method": "create_node",
+    "parameter_hints": [
+      "type",
+      "name",
+      "parent_path",
+      "scene_path",
+      "scene_file"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "delete_node",
+    "group": "node",
+    "method": "delete_node",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "reparent_node",
+    "group": "node",
+    "method": "reparent_node",
+    "parameter_hints": [
+      "path",
+      "new_parent"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "set_property",
+    "group": "node",
+    "method": "set_property",
+    "parameter_hints": [
+      "path",
+      "property",
+      "value"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "rename_node",
+    "group": "node",
+    "method": "rename_node",
+    "parameter_hints": [
+      "path",
+      "new_name"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "duplicate_node",
+    "group": "node",
+    "method": "duplicate_node",
+    "parameter_hints": [
+      "path",
+      "name"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "move_node",
+    "group": "node",
+    "method": "move_node",
+    "parameter_hints": [
+      "path",
+      "index"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "add_to_group",
+    "group": "node",
+    "method": "add_to_group",
+    "parameter_hints": [
+      "path",
+      "group"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "remove_from_group",
+    "group": "node",
+    "method": "remove_from_group",
+    "parameter_hints": [
+      "path",
+      "group"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "set_selection",
+    "group": "node",
+    "method": "set_selection",
+    "parameter_hints": [
+      "path",
+      "paths"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "get_node_properties",
+    "group": "node",
+    "method": "get_node_properties",
+    "parameter_hints": [
+      "path",
+      "fields"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "get_children",
+    "group": "node",
+    "method": "get_children",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "get_groups",
+    "group": "node",
+    "method": "get_groups",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "get_logs",
+    "group": "editor",
+    "method": "get_logs",
+    "parameter_hints": [
+      "count",
+      "offset",
+      "source",
+      "include_details",
+      "since_cursor",
+      "since_run_id"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "clear_logs",
+    "group": "editor",
+    "method": "clear_logs",
+    "parameter_hints": [
+      "clear_debugger_errors"
+    ],
+    "read_only": false,
+    "allow_playing": true,
+    "allow_no_scene": false
+  },
+  {
+    "command": "take_screenshot",
+    "group": "editor",
+    "method": "take_screenshot",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": true,
+    "allow_no_scene": false
+  },
+  {
+    "command": "get_performance_monitors",
+    "group": "editor",
+    "method": "get_performance_monitors",
+    "parameter_hints": [
+      "monitors"
+    ],
+    "read_only": true,
+    "allow_playing": true,
+    "allow_no_scene": false
+  },
+  {
+    "command": "reload_plugin",
+    "group": "editor",
+    "method": "reload_plugin",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "quit_editor",
+    "group": "editor",
+    "method": "quit_editor",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": true,
+    "allow_no_scene": true
+  },
+  {
+    "command": "game_eval",
+    "group": "editor",
+    "method": "game_eval",
+    "parameter_hints": [
+      "code",
+      "_request_id"
+    ],
+    "read_only": false,
+    "allow_playing": true,
+    "allow_no_scene": false
+  },
+  {
+    "command": "game_command",
+    "group": "editor",
+    "method": "game_command",
+    "parameter_hints": [
+      "op",
+      "_request_id",
+      "params"
+    ],
+    "read_only": false,
+    "allow_playing": true,
+    "allow_no_scene": false
+  },
+  {
+    "command": "game_debug_control",
+    "group": "editor",
+    "method": "game_debug_control",
+    "parameter_hints": [
+      "action",
+      "_request_id"
+    ],
+    "read_only": false,
+    "allow_playing": true,
+    "allow_no_scene": false
+  },
+  {
+    "command": "get_project_setting",
+    "group": "project",
+    "method": "get_project_setting",
+    "parameter_hints": [
+      "key"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "set_project_setting",
+    "group": "project",
+    "method": "set_project_setting",
+    "parameter_hints": [
+      "key",
+      "value"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "set_main_scene",
+    "group": "project",
+    "method": "set_main_scene",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "run_project",
+    "group": "project",
+    "method": "run_project",
+    "parameter_hints": [
+      "mode",
+      "autosave",
+      "scene",
+      "_request_id"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "stop_project",
+    "group": "project",
+    "method": "stop_project",
+    "parameter_hints": [
+      "_request_id"
+    ],
+    "read_only": false,
+    "allow_playing": true,
+    "allow_no_scene": false
+  },
+  {
+    "command": "search_filesystem",
+    "group": "project",
+    "method": "search_filesystem",
+    "parameter_hints": [
+      "name",
+      "type",
+      "path"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "create_script",
+    "group": "script",
+    "method": "create_script",
+    "parameter_hints": [
+      "path",
+      "content",
+      "_request_id"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "patch_script",
+    "group": "script",
+    "method": "patch_script",
+    "parameter_hints": [
+      "path",
+      "old_text",
+      "new_text",
+      "replace_all"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "read_script",
+    "group": "script",
+    "method": "read_script",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "attach_script",
+    "group": "script",
+    "method": "attach_script",
+    "parameter_hints": [
+      "path",
+      "script_path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "detach_script",
+    "group": "script",
+    "method": "detach_script",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "find_symbols",
+    "group": "script",
+    "method": "find_symbols",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "search_resources",
+    "group": "resource",
+    "method": "search_resources",
+    "parameter_hints": [
+      "type",
+      "path"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "load_resource",
+    "group": "resource",
+    "method": "load_resource",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "inspect_resource",
+    "group": "resource",
+    "method": "inspect_resource",
+    "parameter_hints": [
+      "depth"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "assign_resource",
+    "group": "resource",
+    "method": "assign_resource",
+    "parameter_hints": [
+      "path",
+      "property",
+      "resource_path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "create_resource",
+    "group": "resource",
+    "method": "create_resource",
+    "parameter_hints": [
+      "type",
+      "properties",
+      "path",
+      "property",
+      "resource_path",
+      "overwrite"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "get_resource_info",
+    "group": "resource",
+    "method": "get_resource_info",
+    "parameter_hints": [
+      "type"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "get_class_info",
+    "group": "api",
+    "method": "get_class_info",
+    "parameter_hints": [
+      "class_name",
+      "limit",
+      "sections"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "read_file",
+    "group": "filesystem",
+    "method": "read_file",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "write_file",
+    "group": "filesystem",
+    "method": "write_file",
+    "parameter_hints": [
+      "path",
+      "content",
+      "_request_id"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "reimport",
+    "group": "filesystem",
+    "method": "reimport",
+    "parameter_hints": [
+      "paths"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "scan_filesystem",
+    "group": "filesystem",
+    "method": "scan_filesystem",
+    "parameter_hints": [
+      "_request_id"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "move_file",
+    "group": "filesystem",
+    "method": "move_file",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "rename_file",
+    "group": "filesystem",
+    "method": "rename_file",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "remove_file",
+    "group": "filesystem",
+    "method": "remove_file",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "list_signals",
+    "group": "signal",
+    "method": "list_signals",
+    "parameter_hints": [
+      "path",
+      "include_editor"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "connect_signal",
+    "group": "signal",
+    "method": "connect_signal",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "disconnect_signal",
+    "group": "signal",
+    "method": "disconnect_signal",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "list_autoloads",
+    "group": "autoload",
+    "method": "list_autoloads",
+    "parameter_hints": [],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "add_autoload",
+    "group": "autoload",
+    "method": "add_autoload",
+    "parameter_hints": [
+      "name",
+      "path",
+      "singleton"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "remove_autoload",
+    "group": "autoload",
+    "method": "remove_autoload",
+    "parameter_hints": [
+      "name"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "list_actions",
+    "group": "input",
+    "method": "list_actions",
+    "parameter_hints": [
+      "include_builtin"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "add_action",
+    "group": "input",
+    "method": "add_action",
+    "parameter_hints": [
+      "action",
+      "deadzone"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "ensure_action",
+    "group": "input",
+    "method": "ensure_action",
+    "parameter_hints": [
+      "action",
+      "deadzone"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "remove_action",
+    "group": "input",
+    "method": "remove_action",
+    "parameter_hints": [
+      "action"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "bind_event",
+    "group": "input",
+    "method": "bind_event",
+    "parameter_hints": [
+      "action",
+      "event_type"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "ensure_binding",
+    "group": "input",
+    "method": "ensure_binding",
+    "parameter_hints": [
+      "action",
+      "event_type",
+      "deadzone"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": true
+  },
+  {
+    "command": "run_tests",
+    "group": "test",
+    "method": "run_tests",
+    "parameter_hints": [
+      "suite",
+      "test_name",
+      "exclude_test_name",
+      "verbose",
+      "_request_id"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "get_test_results",
+    "group": "test",
+    "method": "get_test_results",
+    "parameter_hints": [
+      "verbose"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "batch_execute",
+    "group": "batch",
+    "method": "batch_execute",
+    "parameter_hints": [
+      "commands",
+      "undo"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "set_anchor_preset",
+    "group": "ui",
+    "method": "set_anchor_preset",
+    "parameter_hints": [
+      "path",
+      "preset",
+      "resize_mode",
+      "margin"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "set_text",
+    "group": "ui",
+    "method": "set_text",
+    "parameter_hints": [
+      "path",
+      "text"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "set_richtext",
+    "group": "ui",
+    "method": "set_richtext",
+    "parameter_hints": [
+      "path",
+      "text",
+      "bbcode"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "build_layout",
+    "group": "ui",
+    "method": "build_layout",
+    "parameter_hints": [
+      "tree",
+      "parent_path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "create_theme",
+    "group": "theme",
+    "method": "create_theme",
+    "parameter_hints": [
+      "path",
+      "overwrite"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "theme_set_color",
+    "group": "theme",
+    "method": "set_color",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "theme_set_constant",
+    "group": "theme",
+    "method": "set_constant",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "theme_set_font_size",
+    "group": "theme",
+    "method": "set_font_size",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "theme_set_stylebox_flat",
+    "group": "theme",
+    "method": "set_stylebox_flat",
+    "parameter_hints": [
+      "class_name",
+      "name"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "theme_set_stylebox_texture",
+    "group": "theme",
+    "method": "set_stylebox_texture",
+    "parameter_hints": [
+      "class_name",
+      "name",
+      "texture_path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "theme_set_font",
+    "group": "theme",
+    "method": "set_font",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "theme_set_icon",
+    "group": "theme",
+    "method": "set_icon",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "theme_stylebox_override",
+    "group": "theme",
+    "method": "stylebox_override",
+    "parameter_hints": [
+      "path",
+      "slot",
+      "patch"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "apply_theme",
+    "group": "theme",
+    "method": "apply_theme",
+    "parameter_hints": [
+      "node_path",
+      "theme_path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_player_create",
+    "group": "animation",
+    "method": "create_player",
+    "parameter_hints": [
+      "parent_path",
+      "name"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_create",
+    "group": "animation",
+    "method": "create_animation",
+    "parameter_hints": [
+      "player_path",
+      "name",
+      "length",
+      "loop_mode",
+      "overwrite"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_add_property_track",
+    "group": "animation",
+    "method": "add_property_track",
+    "parameter_hints": [
+      "player_path",
+      "animation_name",
+      "track_path",
+      "keyframes",
+      "interpolation"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_add_method_track",
+    "group": "animation",
+    "method": "add_method_track",
+    "parameter_hints": [
+      "player_path",
+      "animation_name",
+      "target_node_path",
+      "keyframes"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_set_autoplay",
+    "group": "animation",
+    "method": "set_autoplay",
+    "parameter_hints": [
+      "player_path",
+      "animation_name"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_play",
+    "group": "animation",
+    "method": "play",
+    "parameter_hints": [
+      "player_path",
+      "animation_name"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_stop",
+    "group": "animation",
+    "method": "stop",
+    "parameter_hints": [
+      "player_path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_list",
+    "group": "animation",
+    "method": "list_animations",
+    "parameter_hints": [],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_get",
+    "group": "animation",
+    "method": "get_animation",
+    "parameter_hints": [],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_create_simple",
+    "group": "animation",
+    "method": "create_simple",
+    "parameter_hints": [
+      "player_path",
+      "name",
+      "tweens",
+      "loop_mode",
+      "length",
+      "overwrite"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_delete",
+    "group": "animation",
+    "method": "delete_animation",
+    "parameter_hints": [
+      "player_path",
+      "animation_name"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_validate",
+    "group": "animation",
+    "method": "validate_animation",
+    "parameter_hints": [],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_preset_fade",
+    "group": "animation",
+    "method": "preset_fade",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_preset_slide",
+    "group": "animation",
+    "method": "preset_slide",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_preset_shake",
+    "group": "animation",
+    "method": "preset_shake",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "animation_preset_pulse",
+    "group": "animation",
+    "method": "preset_pulse",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "material_create",
+    "group": "material",
+    "method": "create_material",
+    "parameter_hints": [
+      "path",
+      "type",
+      "shader_path",
+      "overwrite"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "visual_shader_create_graph",
+    "group": "visual_shader",
+    "method": "create_graph",
+    "parameter_hints": [
+      "resource_path",
+      "overwrite",
+      "shader_type",
+      "stages",
+      "varyings"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "visual_shader_get",
+    "group": "visual_shader",
+    "method": "get_graph",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "visual_shader_node_catalog",
+    "group": "visual_shader",
+    "method": "node_catalog",
+    "parameter_hints": [
+      "filter",
+      "offset",
+      "limit"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "visual_shader_edit",
+    "group": "visual_shader",
+    "method": "edit_graph",
+    "parameter_hints": [
+      "resource_path",
+      "operations"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "material_set_param",
+    "group": "material",
+    "method": "set_param",
+    "parameter_hints": [
+      "path",
+      "param",
+      "value"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "material_set_shader_param",
+    "group": "material",
+    "method": "set_shader_param",
+    "parameter_hints": [
+      "path",
+      "param",
+      "value"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "material_get",
+    "group": "material",
+    "method": "get_material",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "material_list",
+    "group": "material",
+    "method": "list_materials",
+    "parameter_hints": [
+      "root",
+      "type"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "material_assign",
+    "group": "material",
+    "method": "assign_material",
+    "parameter_hints": [
+      "node_path",
+      "slot",
+      "resource_path",
+      "create_if_missing",
+      "type"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "material_apply_to_node",
+    "group": "material",
+    "method": "apply_to_node",
+    "parameter_hints": [
+      "node_path",
+      "type",
+      "slot",
+      "params",
+      "save_to",
+      "overwrite"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "material_apply_preset",
+    "group": "material",
+    "method": "apply_preset",
+    "parameter_hints": [
+      "preset",
+      "overrides",
+      "path",
+      "node_path",
+      "slot",
+      "overwrite"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "shader_create",
+    "group": "shader",
+    "method": "create_shader",
+    "parameter_hints": [
+      "resource_path",
+      "code",
+      "overwrite",
+      "shader_type"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "shader_get",
+    "group": "shader",
+    "method": "get_shader",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "shader_validate",
+    "group": "shader",
+    "method": "validate_shader",
+    "parameter_hints": [
+      "code",
+      "kind",
+      "shader_type",
+      "base_dir"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "shader_patch",
+    "group": "shader",
+    "method": "patch_shader",
+    "parameter_hints": [
+      "path",
+      "old_text",
+      "new_text",
+      "replace_all",
+      "shader_type"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "particle_create",
+    "group": "particle",
+    "method": "create_particle",
+    "parameter_hints": [
+      "parent_path",
+      "name",
+      "type"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "particle_set_main",
+    "group": "particle",
+    "method": "set_main",
+    "parameter_hints": [
+      "properties"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "particle_set_process",
+    "group": "particle",
+    "method": "set_process",
+    "parameter_hints": [
+      "properties"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "particle_set_draw_pass",
+    "group": "particle",
+    "method": "set_draw_pass",
+    "parameter_hints": [
+      "pass",
+      "mesh",
+      "texture",
+      "material"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "particle_restart",
+    "group": "particle",
+    "method": "restart_particle",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "particle_get",
+    "group": "particle",
+    "method": "get_particle",
+    "parameter_hints": [],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "particle_apply_preset",
+    "group": "particle",
+    "method": "apply_preset",
+    "parameter_hints": [
+      "preset",
+      "overrides",
+      "parent_path",
+      "name",
+      "type"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "camera_create",
+    "group": "camera",
+    "method": "create_camera",
+    "parameter_hints": [
+      "parent_path",
+      "name",
+      "type",
+      "make_current"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "camera_configure",
+    "group": "camera",
+    "method": "configure",
+    "parameter_hints": [
+      "properties"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "camera_set_limits_2d",
+    "group": "camera",
+    "method": "set_limits_2d",
+    "parameter_hints": [
+      "smoothed"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "camera_set_damping_2d",
+    "group": "camera",
+    "method": "set_damping_2d",
+    "parameter_hints": [
+      "position_speed",
+      "rotation_speed",
+      "drag_margins"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "camera_follow_2d",
+    "group": "camera",
+    "method": "follow_2d",
+    "parameter_hints": [
+      "target_path",
+      "smoothing_speed",
+      "zero_transform"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "camera_get",
+    "group": "camera",
+    "method": "get_camera",
+    "parameter_hints": [
+      "camera_path"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "camera_list",
+    "group": "camera",
+    "method": "list_cameras",
+    "parameter_hints": [],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "camera_apply_preset",
+    "group": "camera",
+    "method": "apply_preset",
+    "parameter_hints": [
+      "preset",
+      "overrides",
+      "parent_path",
+      "name",
+      "type",
+      "make_current"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "audio_player_create",
+    "group": "audio",
+    "method": "create_player",
+    "parameter_hints": [
+      "parent_path",
+      "name",
+      "type"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "audio_player_set_stream",
+    "group": "audio",
+    "method": "set_stream",
+    "parameter_hints": [
+      "player_path",
+      "stream_path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "audio_player_set_playback",
+    "group": "audio",
+    "method": "set_playback",
+    "parameter_hints": [
+      "player_path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "audio_play",
+    "group": "audio",
+    "method": "play",
+    "parameter_hints": [
+      "player_path",
+      "from_position"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "audio_stop",
+    "group": "audio",
+    "method": "stop",
+    "parameter_hints": [
+      "player_path"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "audio_list",
+    "group": "audio",
+    "method": "list_streams",
+    "parameter_hints": [
+      "root",
+      "include_duration"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "physics_shape_autofit",
+    "group": "physics_shape",
+    "method": "autofit",
+    "parameter_hints": [
+      "path",
+      "source_path",
+      "shape_type"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "physics_shape_generate",
+    "group": "physics_shape",
+    "method": "generate",
+    "parameter_hints": [
+      "_request_id",
+      "shape_type",
+      "body_type",
+      "reparent_mesh",
+      "paths",
+      "scene_file",
+      "overwrite"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "environment_create",
+    "group": "environment",
+    "method": "create_environment",
+    "parameter_hints": [
+      "path",
+      "resource_path",
+      "overwrite",
+      "preset",
+      "properties",
+      "sky"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "gradient_texture_create",
+    "group": "texture",
+    "method": "create_gradient_texture",
+    "parameter_hints": [
+      "stops",
+      "width",
+      "height",
+      "fill"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "noise_texture_create",
+    "group": "texture",
+    "method": "create_noise_texture",
+    "parameter_hints": [
+      "noise_type",
+      "width",
+      "height",
+      "frequency",
+      "seed",
+      "fractal_octaves"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "curve_set_points",
+    "group": "curve",
+    "method": "set_points",
+    "parameter_hints": [
+      "path",
+      "property",
+      "resource_path",
+      "points"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "control_draw_recipe",
+    "group": "control_draw_recipe",
+    "method": "control_draw_recipe",
+    "parameter_hints": [
+      "path",
+      "ops",
+      "clear_existing"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "tilemap_set_cell",
+    "group": "tilemap",
+    "method": "set_cell",
+    "parameter_hints": [
+      "map_x",
+      "map_y",
+      "source_id",
+      "atlas_col",
+      "atlas_row"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "tilemap_set_cells_rect",
+    "group": "tilemap",
+    "method": "set_cells_rect",
+    "parameter_hints": [
+      "source_id",
+      "atlas_col",
+      "atlas_row",
+      "rect_x",
+      "rect_y",
+      "rect_w",
+      "rect_h"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "tilemap_clear",
+    "group": "tilemap",
+    "method": "clear_layer",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "tilemap_get_cells",
+    "group": "tilemap",
+    "method": "get_used_cells",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "tileset_get_atlas_tiles",
+    "group": "tileset",
+    "method": "get_atlas_tiles",
+    "parameter_hints": [],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "tileset_get_atlas_image",
+    "group": "tileset",
+    "method": "get_atlas_image",
+    "parameter_hints": [
+      "max_size"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "gridmap_set_item",
+    "group": "gridmap",
+    "method": "set_item",
+    "parameter_hints": [
+      "map_x",
+      "map_y",
+      "map_z",
+      "item",
+      "orientation"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "gridmap_fill",
+    "group": "gridmap",
+    "method": "fill",
+    "parameter_hints": [
+      "item",
+      "orientation",
+      "rect_x",
+      "rect_y",
+      "rect_z",
+      "rect_w",
+      "rect_h",
+      "rect_d"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "gridmap_clear",
+    "group": "gridmap",
+    "method": "clear_layer",
+    "parameter_hints": [],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "gridmap_get_used_cells",
+    "group": "gridmap",
+    "method": "get_used_cells",
+    "parameter_hints": [],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "gridmap_list_library_items",
+    "group": "gridmap",
+    "method": "list_library_items",
+    "parameter_hints": [
+      "path"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "navigation_bake",
+    "group": "navigation",
+    "method": "bake",
+    "parameter_hints": [
+      "_request_id",
+      "force_sync"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "navigation_path_get",
+    "group": "navigation",
+    "method": "path_get",
+    "parameter_hints": [
+      "from_point",
+      "to_point",
+      "optimize",
+      "navigation_layers",
+      "force_sync",
+      "region_path",
+      "scene_file",
+      "dimension"
+    ],
+    "read_only": true,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "csg_create",
+    "group": "csg",
+    "method": "create",
+    "parameter_hints": [
+      "parent_path",
+      "shape",
+      "operation",
+      "scene_file",
+      "name"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  },
+  {
+    "command": "csg_set_operation",
+    "group": "csg",
+    "method": "set_operation",
+    "parameter_hints": [
+      "operation",
+      "path",
+      "scene_file"
+    ],
+    "read_only": false,
+    "allow_playing": false,
+    "allow_no_scene": false
+  }
+]

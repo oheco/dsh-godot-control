@@ -1,0 +1,36 @@
+{
+  "godot-ai": {
+    "version": "4.3.0",
+    "commit": "b82b5c519b1b17228f70d8effce1626f391bd1dd",
+    "source": "https://codeload.github.com/hi-godot/godot-ai/tar.gz/b82b5c519b1b17228f70d8effce1626f391bd1dd",
+    "sha256": "c5d612ca8d0ce38253fcc64476a9abdc18b811ecc689b89cc9cb90464de5da0d",
+    "size": 18879550,
+    "license": "MIT",
+    "directory": "tpr/godot-ai",
+    "changes": "Unmodified upstream build input; generated editor addon uses DSH startup and namespaces."
+  },
+  "ws": {
+    "version": "8.21.0",
+    "source": "https://codeload.github.com/websockets/ws/tar.gz/refs/tags/8.21.0",
+    "sha256": "fc1b98316a87aa74076984749ae60b4f9421677db4fdbf61c71106bee823dbe3",
+    "size": 88450,
+    "distribution": "https://registry.npmjs.org/ws/-/ws-8.21.0.tgz",
+    "distribution_sha256": "d08b726b3aae3a0fed5218a0d9a4b2ac8d75d4ad453a9271db55fe38e94eb4cf",
+    "distribution_size": 34987,
+    "license": "MIT",
+    "directory": "tpr/ws",
+    "changes": "None; complete upstream source is retained in source/."
+  },
+  "fflate": {
+    "version": "0.8.2",
+    "source": "https://codeload.github.com/101arrowz/fflate/tar.gz/refs/tags/v0.8.2",
+    "sha256": "4377b069159546a4cebbe8a80d1ee15c0345559a04e6826472f6747c9a6b7ca1",
+    "size": 118208,
+    "distribution": "https://registry.npmjs.org/fflate/-/fflate-0.8.2.tgz",
+    "distribution_sha256": "61fd5061e2fc8e5e3e3129f7f2fec7bd78a313e1bf4becbf1cc1cc9998d141dc",
+    "distribution_size": 168507,
+    "license": "MIT",
+    "directory": "tpr/fflate",
+    "changes": "None; complete TypeScript source is retained in source/."
+  }
+}

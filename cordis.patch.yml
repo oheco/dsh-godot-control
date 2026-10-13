@@ -1,0 +1,4 @@
+- insert:
+    - id: oheco-godot-control
+      name: './main.js'
+      config: {}
