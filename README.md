@@ -2,16 +2,65 @@
 
 让 DSH 直接操作 Godot 编辑器。DSH 插件提供原生工具与本机 WebSocket 服务，Godot 插件执行编辑器命令；运行时使用 DSH 自带 Node.js 和 Godot，不需要 Python、MCP 服务或另外启动的桥接进程。
 
-目标环境：HarmonyOS PC ARM64、DSH 0.2.0-rc.2、Godot 4.7 及更新的 4.x。编辑器操作基于 Godot AI v4.3.0；验证范围见 [VERIFICATION.md](VERIFICATION.md)，第三方输入见 [THIRD_PARTY.md](THIRD_PARTY.md)。
+目标环境：HarmonyOS PC ARM64、DSH 0.2.0-rc.2（Node.js 24）、Godot 4.7 及更新的 4.x。DSH 与 Godot 需要运行在同一台设备上。验证范围见 [VERIFICATION.md](VERIFICATION.md)。
+
+## Godot AI 版本引用
+
+本仓库基于 [hi-godot/godot-ai](https://github.com/hi-godot/godot-ai) 的编辑器插件适配，固定引用以下基线：
+
+| 项目 | 引用 |
+| --- | --- |
+| Godot AI 版本 | [v4.3.0](https://github.com/hi-godot/godot-ai/tree/v4.3.0) |
+| 上游提交 | [b82b5c519b1b17228f70d8effce1626f391bd1dd](https://github.com/hi-godot/godot-ai/commit/b82b5c519b1b17228f70d8effce1626f391bd1dd) |
+| WebSocket 协议 | Godot AI 协议 2 |
+| 上游源码与许可证 | [tpr/godot-ai/](tpr/godot-ai/) |
+| 本插件版本与分支 | 0.1.0，`ohos/0.1.0` |
+
+Godot 侧复用上游的命令分发器、编辑器 handler 与运行时辅助代码，启动入口改为连接 DSH，并使用独立的 `dsh_godot` 目录和类名。DSH 侧是本仓库实现的原生插件，负责连接服务、认证、会话路由和工具注册。原版 Python 后端的启动、MCP 客户端配置和自动凭据发现流程由本版的 DSH 配对流程替代。
+
+原始上游代码保留在 [tpr/godot-ai/](tpr/godot-ai/)，由 [构建脚本](scripts/build-addon.mjs)生成 [Godot addon](godot/addons/dsh_godot/)。完整依赖版本、归档地址、摘要与许可证记录见 [dependencies.json](dependencies.json) 和 [THIRD_PARTY.md](THIRD_PARTY.md)。
 
 ## 安装与配对
 
-1. 下载并解压 [Release](https://github.com/oheco/dsh-godot-control/releases/latest) 中的 ZIP。DSH 插件管理页选择“从本地目录安装”，选择含 `package.json` 的外层目录，启用 `@oheco/dsh-godot-control`。
-2. 将包内 `godot/addons/dsh_godot` 目录复制到 Godot 项目的 `addons` 中，在“项目设置 → 插件”启用 **DSH Godot Control**。这个 addon 与原版 Godot AI 使用不同目录和类名。
-3. 打开 DSH 插件详情的“Godot 配对”面板，复制连接令牌。地址中的端口默认为 `9500`；令牌仅在点击显示或复制时读取。
-4. 在 Godot 的 **DSH Godot** 面板填写端口与令牌，点击“保存配对并连接”。回到 DSH 刷新状态，显示项目路径即完成配对。
+### 1. 获取插件代码
 
-配对在编辑器的私有配置目录中持久化，不写入项目、EditorSettings 或发行包。Godot 断线后自动重连；DSH 关闭或卸载插件会释放监听端口并结束待处理调用。目录安装可能持续引用原目录，请保留安装目录。端口冲突会在 DSH 插件加载时明确报错，可同时修改 DSH 保存配置和 Godot 配对端口。
+在要长期保留插件的目录中克隆仓库：
+
+```sh
+git -c http.proxy=socks5h://127.0.0.1:10808 clone --branch ohos/0.1.0 --single-branch https://github.com/oheco/dsh-godot-control.git
+```
+
+上述命令使用本工作区的本机 SOCKS5 代理 `127.0.0.1:10808`，其他环境请替换成自己的代理地址。仓库已包含可安装的 DSH 插件、生成好的 Godot addon 和固定依赖，安装时无需执行 `npm install` 或先运行构建。
+
+### 2. 安装 DSH 插件
+
+打开 DSH 插件管理页，选择“从本地目录安装”，选择刚克隆的 `dsh-godot-control` 仓库根目录，也就是 [package.json](package.json) 所在目录，然后启用 **@oheco/dsh-godot-control**。
+
+目录安装可能持续引用原目录，请保留整个仓库目录。DSH 插件详情中会出现“Godot 配对”面板。
+
+### 3. 安装 Godot 编辑器插件
+
+将仓库中的 [godot/addons/dsh_godot](godot/addons/dsh_godot/) 整个目录复制到目标 Godot 项目的 `addons` 目录。安装后的项目结构应为：
+
+```text
+my-game/
+  project.godot
+  addons/
+    dsh_godot/
+      plugin.cfg
+      plugin.gd
+      ...
+```
+
+打开该项目，在“项目设置 → 插件”中启用 **DSH Godot Control**，编辑器中会出现 **DSH Godot** 面板。每个需要控制的 Godot 项目都安装一次这个 addon。
+
+### 4. 首次配对与确认连接
+
+1. 在 DSH 的“Godot 配对”面板查看连接地址，复制令牌。端口默认为 `9500`；令牌仅在点击显示或复制时读取。
+2. 在 Godot 的 **DSH Godot** 面板填写相同端口与令牌，点击“保存配对并连接”。
+3. 回到 DSH 刷新状态，确认显示该 Godot 项目路径。也可以让 DSH 调用 `godot_status` 查看连接状态，再调用 `godot_scene_tree` 读取当前场景。
+
+本版首次连接需要手动配对一次，保存后会自动重连。配对信息在 Godot 编辑器的私有配置目录中持久化，不写入项目、EditorSettings 或发行包。DSH 关闭或卸载插件会释放监听端口并结束待处理调用。端口冲突会在 DSH 插件加载时明确报错，可同时修改 DSH 保存配置和 Godot 配对端口。
 
 ## 使用
 
