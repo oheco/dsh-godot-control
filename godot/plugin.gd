@@ -37,6 +37,9 @@ func _enter_tree() -> void:
 	if int(version.major) != 4 or int(version.minor) < 7:
 		push_error("DSH Godot requires Godot 4.7 or newer within 4.x.")
 		return
+	# Export cleanup must also run when the interactive bridge is disabled.
+	_export_plugin = ExportPlugin.new()
+	add_export_plugin(_export_plugin)
 	if DisplayServer.get_name() == "headless" and OS.get_environment("DSH_GODOT_ALLOW_HEADLESS") != "1":
 		return
 	_log_buffer = LogBuffer.new()
@@ -56,8 +59,6 @@ func _enter_tree() -> void:
 	_debugger_plugin.vision_routing = _vision_routing
 	add_debugger_plugin(_debugger_plugin)
 	_connection.debugger_plugin = _debugger_plugin
-	_export_plugin = ExportPlugin.new()
-	add_export_plugin(_export_plugin)
 	_register_handlers()
 	_connection.dispatcher = _dispatcher
 	var pairing := _load_pairing()

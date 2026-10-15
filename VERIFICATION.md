@@ -2,7 +2,7 @@
 
 ## 0.1.1 修复验证（2026-10-15）
 
-HarmonyOS PC ARM64 本机执行 `npm run build`、`npm run check`、`npm test` 和 `npm run test:native`，9 项自动测试、20 项真实 Godot 验收全部通过。隔离工程与缓存配置均位于 `$TMPDIR`，不读取或覆盖用户已有 Godot 配对；每次测试结束清理独立工程，报告保留在应用缓存。
+HarmonyOS PC ARM64 本机执行 `npm run build`、`npm run check`、`npm test` 和 `npm run test:native`，9 项自动测试、21 项真实 Godot 验收全部通过。隔离工程与缓存配置均位于 `$TMPDIR`，不读取或覆盖用户已有 Godot 配对；每次测试结束清理独立工程，报告保留在应用缓存。
 
 新增验收实际覆盖：
 
@@ -10,6 +10,7 @@ HarmonyOS PC ARM64 本机执行 `npm run build`、`npm run check`、`npm test` �
 - 在同一个编辑器 PID 中，将项目配置切换到另一组端口和 token，再切回原服务，自动重连成功，不重新启动编辑器。
 - 首次导入缺少外部 PNG 的 glTF，实际实例化材质确认没有贴图；补齐并扫描 PNG 后，原 glTF 材质仍无贴图；调用强制 `reimport` 后，实际材质恢复 1×1 贴图。glTF 与几何缓冲的 SHA-256、修改时间均未改变。每次材质检查绕过场景和依赖缓存。
 - 混合请求中的模型实际导入一次，重复路径不重复执行；脚本归入跳过项、缺失文件归入缺失项。损坏 PNG 产生真实导入失败且不计成功，恢复后在同一编辑器内重导入成功。
+- 默认 headless 编辑器不启用连接桥时，仍注册导出清理钩子：真实导出排除 addon 的 PCK，确认包内无 helper autoload、磁盘项目设置不变，导出游戏可直接启动且无缺失脚本或 autoload 错误。入口模板将导出插件注册放在 headless 提前返回之前，生成产物保持一致。
 - `reload_plugin` 后插件断开并重新认证，编辑器 PID 不变。
 - 启动真实游戏子进程后，观察到 `helper_live=true`、`game_capture_ready=true`；通过修正后的调试通道执行 `return {"answer": 2 + 3}` 并收到 `{"answer":5}`。headless 验收工程显式为游戏子进程设置 `--headless`，不依赖编辑器自动转发该参数。
 - 仓库同步支持含空格路径；校验能发现项目副本被修改；Godot 生成的 UID 不产生代码差异；配置文件叶节点为符号链接时拒绝写入，外部目标内容保持不变。

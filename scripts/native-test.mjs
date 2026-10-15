@@ -10,6 +10,7 @@ import { GodotBridge } from '../server.js';
 import { createOperations } from '../operations.js';
 import { setupResourceFixture, verifyResourceReimport } from './native-resource-fixture.mjs';
 import { setupPairingFixture, verifyPairingFixture } from './native-pairing-fixture.mjs';
+import { verifyHeadlessExport } from './native-export-fixture.mjs';
 const source = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 if (!process.env.TMPDIR || !process.env.XDG_CACHE_HOME) throw new Error('TMPDIR and XDG_CACHE_HOME are required.');
 const work = await mkdtemp(path.join(process.env.TMPDIR, 'dsh-godot-native-'));
@@ -50,6 +51,7 @@ try {
   report.engine_version = (await run(['--version'], 'version.log')).trim();
   report.engine_sha256 = createHash('sha256').update(await readFile(engine)).digest('hex');
   await step('clean addon import on real Godot', () => run(['--headless', '--editor', '--path', project, '--import', '--quit'], 'import.log'));
+  await step('headless export strips the helper without enabling the bridge', () => verifyHeadlessExport({ work, source, run, report }));
   await pair(bridge.port, token);
   editor = spawn(engine, ['--headless', '--editor', '--path', project, '--script', 'res://bootstrap.gd'], { env: { ...env, DSH_GODOT_ALLOW_HEADLESS: '1' }, stdio: ['ignore', 'pipe', 'pipe'] });
   editor.stdout.on('data', data => { log += data; }); editor.stderr.on('data', data => { log += data; });
