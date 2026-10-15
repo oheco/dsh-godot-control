@@ -6,7 +6,7 @@ const ScriptHandler := preload("res://addons/dsh_godot/handlers/script_handler.g
 
 ## Handles file read/write operations and reimport within the Godot project.
 
-## Bounds for the deferred scan wait. `write_file`/`reimport` register single
+## Bounds for the deferred scan wait. `write_file` registers single
 ## files with `update_file()` (cheap, no global-class rebuild); `scan_filesystem`
 ## is the heavier, explicit "rebuild the class registry" path agents call after
 ## adding `class_name` scripts headlessly (no window focus to trigger it).
@@ -128,86 +128,12 @@ func write_file(params: Dictionary) -> Dictionary:
 
 
 func reimport(params: Dictionary) -> Dictionary:
-	var paths: Array = params.get("paths", [])
-
-	if paths.is_empty():
-		return ErrorCodes.make(ErrorCodes.MISSING_REQUIRED_PARAM, "Missing required param: paths (non-empty array)")
-
-	var efs := EditorInterface.get_resource_filesystem()
-	if efs == null:
-		return ErrorCodes.make_not_ready(
-			ErrorCodes.SUB_EDITOR_UNAVAILABLE,
-			"EditorFileSystem not available", false)
-
-	var reimported: Array[String] = []
-	var skipped_non_imported: Array[String] = []
-	var not_found: Array[String] = []
-
-	for path_variant in paths:
-		var path: String = str(path_variant)
-		var path_err := DshGodotPathValidator.validate_resource_path(path)
-		if not path_err.is_empty():
-			not_found.append("%s (%s)" % [path, path_err])
-			continue
-		if not FileAccess.file_exists(path):
-			not_found.append("%s (file does not exist)" % path)
-			continue
-		efs.update_file(path)
-		if _is_imported_resource(path):
-			reimported.append(path)
-		else:
-			skipped_non_imported.append(path)
-
-	var data := {
-		"reimported": reimported,
-		"skipped_non_imported": skipped_non_imported,
-		"not_found": not_found,
-		"reimported_count": reimported.size(),
-		"skipped_non_imported_count": skipped_non_imported.size(),
-		"not_found_count": not_found.size(),
-		"undoable": false,
-		"reason": "Reimport is a file system operation",
-	}
-	## Only when it applies: a hint on every call would cost tokens on the
-	## all-assets path this op is actually for.
-	if not skipped_non_imported.is_empty():
-		data["skipped_non_imported_hint"] = (
-			"%d path(s) are not imported resources. Their editor filesystem entry was "
-			+ "refreshed, but no import ran — a success here is not evidence that a "
-			+ "script parsed or that diagnostics were produced. Use script_patch/"
-			+ "script_create for GDScript diagnostics, or filesystem_manage(op=\"scan\") "
-			+ "for an asset the editor has not imported yet."
-		) % skipped_non_imported.size()
-	return {"data": data}
-
-
-## #778: `update_file()` registers a path with the resource pipeline; it only
-## runs an *import* for files that have one. Scripts, scenes and hand-written
-## `.tres` are not imported resources, so listing them under `reimported` reads
-## as proof that a parse or import ran when nothing did.
-##
-## The `.import` sidecar is the editor's own record that a path goes through
-## the import pipeline, so it decides the split. An extension allow-list was
-## rejected: importers come and go with plugins, so the list would drift out of
-## agreement with the editor it claims to describe.
-##
-## Known edge: an asset the editor has never imported (just written, no scan
-## yet) has no sidecar and reports as non-imported. That is accurate at the
-## moment of the call — `update_file()` did not import it either — and the
-## hint names `scan` as the way through.
-##
-## Behaviour is unchanged for every path: `update_file()` still runs on all of
-## them, because refreshing an externally-edited `.tscn`/`.tres` is a real use
-## of this op. This splits the report, not the work.
-static func _is_imported_resource(path: String) -> bool:
-	if path.ends_with(IMPORT_SIDECAR_SUFFIX):
-		return false  ## The sidecar itself is not an imported resource.
-	return FileAccess.file_exists(path + IMPORT_SIDECAR_SUFFIX)
+	return preload("res://addons/dsh_godot/utils/resource_reimport.gd").run(params)
 
 
 ## Force a full EditorFileSystem scan and wait for it to settle. This is the
 ## headless equivalent of the editor regaining window focus: `update_file()`
-## (used by write_file/reimport/script_create) registers a single file with the
+## (used by write_file/script_create) registers a single file with the
 ## resource pipeline but does NOT rebuild the global `class_name` table, so a
 ## freshly-created `class_name MyThing extends Resource` stays invisible to
 ## `ClassDB`/`ProjectSettings.get_global_class_list()` until a scan runs. Agents
@@ -219,6 +145,9 @@ func scan_filesystem(params: Dictionary) -> Dictionary:
 		return ErrorCodes.make_not_ready(
 			ErrorCodes.SUB_EDITOR_UNAVAILABLE,
 			"EditorFileSystem not available", false)
+
+	if efs.is_importing():
+		return ErrorCodes.make_not_ready(ErrorCodes.SUB_EDITOR_IMPORTING, "Wait for resource import before scanning", true)
 
 	var request_id: String = params.get("_request_id", "")
 	# Async path: a scan can't be awaited on the calling frame without freezing

@@ -19,7 +19,7 @@ const ScriptWork := preload("res://addons/dsh_godot/utils/script_work.gd")
 ## from the editor's Viewport. The debugger channel is the engine's own
 ## supported IPC and works identically regardless of embed mode.
 
-const CAPTURE_PREFIX := "mcp"
+const CAPTURE_PREFIX := "dsh_godot"
 ## CI runners under xvfb can be slow to spin up the game subprocess and
 ## register the autoload's capture. 8s keeps the message responsive for
 ## interactive users while still covering slow-CI startup.
@@ -27,7 +27,7 @@ const DEFAULT_TIMEOUT_SEC := 8.0
 ## How long to wait for the game-side autoload to beacon dsh_godot:hello
 ## before sending the screenshot request. Godot's debugger drops
 ## messages whose prefix has no registered capture, so sending
-## take_screenshot before the game registers its "mcp" capture is a
+## take_screenshot before the game registers its "dsh_godot" capture is a
 ## silent black hole. On CI the game subprocess has been observed
 ## taking ~15s to boot + register.
 const GAME_READY_WAIT_SEC := 20.0

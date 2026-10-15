@@ -30,6 +30,7 @@ var _port_input: SpinBox
 var _token_input: LineEdit
 var _status_label: Label
 var _refresh_elapsed := 0.0
+var _pairing_stamp := ""
 
 func _enter_tree() -> void:
 	var version := Engine.get_version_info()
@@ -60,6 +61,7 @@ func _enter_tree() -> void:
 	_register_handlers()
 	_connection.dispatcher = _dispatcher
 	var pairing := _load_pairing()
+	_pairing_stamp = _pairing_source_stamp()
 	_connection.connect_blocked = pairing.is_empty()
 	_connection.connect_block_reason = "Pair this editor with DSH in the DSH Godot dock."
 	if not pairing.is_empty():
@@ -272,6 +274,9 @@ func _register_handlers() -> void:
 
 
 func _pairing_file() -> String:
+	return "res://.godot/dsh-godot-control/connection.cfg"
+
+func _legacy_pairing_file() -> String:
 	return EditorInterface.get_editor_paths().get_config_dir().path_join("dsh-godot-control/connection.cfg")
 
 func _valid_pairing(port: int, token: String) -> bool:
@@ -282,18 +287,36 @@ func _load_pairing() -> Dictionary:
 	if not env_token.is_empty():
 		var env_port := int(OS.get_environment("DSH_GODOT_WS_PORT"))
 		return {"port": env_port, "token": env_token} if _valid_pairing(env_port, env_token) else {}
+	# A present project file owns this project's choice, even if malformed.
+	# Never silently connect to the legacy service when the override is invalid.
 	var file := _pairing_file()
 	if not FileAccess.file_exists(file):
-		return {}
-	if OS.get_name() != "Windows" and FileAccess.get_unix_permissions(file) & 0x3f:
-		push_error("DSH Godot pairing file is not private.")
-		return {}
+		file = _legacy_pairing_file()
 	var config := ConfigFile.new()
 	if config.load(file) != OK:
 		return {}
 	var port := int(config.get_value("connection", "port", 0))
 	var token := str(config.get_value("connection", "token", ""))
 	return {"port": port, "token": token} if _valid_pairing(port, token) else {}
+
+func _pairing_source_stamp() -> String:
+	if not OS.get_environment("DSH_GODOT_TOKEN").is_empty():
+		return "environment"
+	var file := _pairing_file() if FileAccess.file_exists(_pairing_file()) else _legacy_pairing_file()
+	return file + ":" + FileAccess.get_sha256(file) if FileAccess.file_exists(file) else "missing"
+
+func _refresh_pairing() -> void:
+	var stamp := _pairing_source_stamp()
+	if stamp == _pairing_stamp:
+		return
+	_pairing_stamp = stamp
+	var pairing := _load_pairing()
+	_connection.disconnect_from_server("Pairing file changed")
+	if pairing.is_empty():
+		_connection.revoke_transport("Project pairing is missing or invalid. Save pairing in the dock.")
+	else:
+		_connection.authorize_transport(int(pairing.port), str(pairing.token))
+		_port_input.value = int(pairing.port)
 
 func _save_pairing() -> void:
 	var port := int(_port_input.value)
@@ -302,31 +325,22 @@ func _save_pairing() -> void:
 		_status_label.text = _label("请输入有效端口和 64 位连接令牌。", "Enter a valid port and 64-character pairing token.")
 		return
 	var file := _pairing_file()
-	var directory := file.get_base_dir()
-	var error := DirAccess.make_dir_recursive_absolute(directory)
+	var error := DirAccess.make_dir_recursive_absolute(file.get_base_dir())
 	if error != OK:
 		_status_label.text = error_string(error)
 		return
-	if OS.get_name() != "Windows":
-		FileAccess.set_unix_permissions(directory, 0x1c0)
-		if FileAccess.get_unix_permissions(directory) & 0x3f:
-			_status_label.text = _label("配置目录无法保护令牌，请使用应用私有存储。", "Pairing requires application-private storage.")
-			return
 	var config := ConfigFile.new()
 	config.set_value("connection", "port", port)
 	config.set_value("connection", "token", token)
 	error = config.save(file)
-	if error == OK and OS.get_name() != "Windows":
-		FileAccess.set_unix_permissions(file, 0x180)
-		if FileAccess.get_unix_permissions(file) & 0x3f:
-			error = ERR_UNAUTHORIZED
 	if error != OK:
 		_status_label.text = error_string(error)
 		return
+	_pairing_stamp = _pairing_source_stamp()
 	_connection.disconnect_from_server("Pairing changed")
 	_connection.authorize_transport(port, token)
 	_token_input.text = ""
-	_status_label.text = _label("配对已保存，正在连接 DSH。", "Pairing saved. Connecting to DSH.")
+	_status_label.text = _label("项目配对已保存，正在连接 DSH。", "Project pairing saved. Connecting to DSH.")
 
 func _label(zh: String, en: String) -> String:
 	return zh if TranslationServer.get_locale().begins_with("zh") else en
@@ -335,7 +349,7 @@ func _build_dock(pairing: Dictionary) -> void:
 	_dock = VBoxContainer.new()
 	_dock.name = "DSH Godot"
 	var intro := Label.new()
-	intro.text = _label("从 DSH 插件配对面板复制端口和令牌。", "Copy the port and token from DSH's pairing panel.")
+	intro.text = _label("从 DSH 配对面板复制端口和令牌，保存到当前项目的 .godot 目录。", "Copy the DSH port and token. Pairing is saved in this project's .godot directory.")
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_dock.add_child(intro)
 	_port_input = SpinBox.new()
@@ -363,6 +377,7 @@ func _process(delta: float) -> void:
 	_refresh_elapsed += delta
 	if _status_label != null and _connection != null and _refresh_elapsed >= 1.0:
 		_refresh_elapsed = 0.0
+		_refresh_pairing()
 		var status: Dictionary = _connection.get_transport_status()
 		_status_label.text = _label("连接状态：", "Connection: ") + str(status.get("phase", "waiting"))
 

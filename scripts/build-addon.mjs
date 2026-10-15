@@ -6,7 +6,17 @@ const source = path.join(root, 'tpr/godot-ai/plugin/addons/godot_ai');
 const output = path.join(root, 'godot/addons/dsh_godot');
 const manifest = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
 const original = await readFile(path.join(source, 'plugin.gd'), 'utf8');
-const transform = text => text.replaceAll('godot_ai', 'dsh_godot').replace(/\bMcp(?=[A-Z])/g, 'DshGodot').replaceAll('_mcp_game_helper', '_dsh_godot_game_helper').replaceAll('mcp:', 'dsh_godot:');
+const transform = text => text.replaceAll('godot_ai', 'dsh_godot').replace(/\bMcp(?=[A-Z])/g, 'DshGodot').replaceAll('_mcp_game_helper', '_dsh_godot_game_helper').replaceAll('mcp:', 'dsh_godot:').replaceAll('CAPTURE_PREFIX := "mcp"', 'CAPTURE_PREFIX := "dsh_godot"').replaceAll('"mcp" capture', '"dsh_godot" capture');
+function adaptFilesystem(content) {
+  content = content.replace('`write_file`/`reimport` register single', '`write_file` registers single').replace('used by write_file/reimport/script_create', 'used by write_file/script_create');
+  const start = content.indexOf('func reimport(params: Dictionary) -> Dictionary:');
+  const end = content.indexOf('## Force a full EditorFileSystem scan', start);
+  if (start < 0 || end < start) throw new Error('Upstream reimport boundaries changed; review the adaptation.');
+  content = content.slice(0, start) + 'func reimport(params: Dictionary) -> Dictionary:\n\treturn preload("res://addons/dsh_godot/utils/resource_reimport.gd").run(params)\n\n\n' + content.slice(end);
+  const scan = content.indexOf('func scan_filesystem(');
+  const guard = '\n\tif efs.is_importing():\n\t\treturn ErrorCodes.make_not_ready(ErrorCodes.SUB_EDITOR_IMPORTING, "Wait for resource import before scanning", true)\n';
+  return content.slice(0, scan) + content.slice(scan).replace('\n\tvar request_id:', guard + '\n\tvar request_id:');
+}
 async function materialize(relative = '') {
   for (const entry of await readdir(path.join(source, relative), { withFileTypes: true })) {
     const name = path.join(relative, entry.name), target = path.join(output, name);
@@ -15,6 +25,7 @@ async function materialize(relative = '') {
       if (entry.name.endsWith('.gd')) {
         let content = transform(await readFile(path.join(source, name), 'utf8'));
         if (name === 'connection.gd') content = content.replace('var launch_mode := ClientConfigurator.get_server_launch_mode()', 'var launch_mode := "dsh"');
+        if (name === 'handlers/filesystem_handler.gd') content = adaptFilesystem(content);
         await writeFile(target, content);
       } else await copyFile(path.join(source, name), target);
     }
@@ -28,6 +39,7 @@ if (existing) {
   await rm(existing, { recursive: true });
 }
 await mkdir(output, { recursive: true }); await materialize();
+await copyFile(path.join(root, 'godot/resource_reimport.gd'), path.join(output, 'utils/resource_reimport.gd'));
 let registration = original.slice(original.indexOf('\tvar undo := get_undo_redo()'), original.indexOf('\n\t_connection.dispatcher = _dispatcher'));
 registration = registration.replace(/\n\t_dispatcher\.register_lazy_handler\(\n\t\t"client",[\s\S]*?\n\t\)/, '').replace(/\n\t_dispatcher\.register_lazy\("(?:configure_client|remove_client|check_client_status)"[^\n]*/g, '');
 const template = await readFile(path.join(root, 'godot/plugin.gd'), 'utf8');

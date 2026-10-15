@@ -19,12 +19,12 @@ extends Node
 ## — register_message_capture is safe to call either way, it's
 ## send_message that requires an active channel.
 
-const CAPTURE_PREFIX := "mcp"
+const CAPTURE_PREFIX := "dsh_godot"
 ## Cap per-frame flush so a runaway print loop can't blow the debugger's
 ## packet budget in a single send. Surplus stays queued for the next frame.
 const FLUSH_BATCH_LIMIT := 200
 ## How long take_screenshot waits for the game's first real presentation
-## before reading the viewport texture back. The "mcp" capture registers in
+## before reading the viewport texture back. The "dsh_godot" capture registers in
 ## this autoload's _ready(), which runs BEFORE the main scene enters the tree
 ## and before the renderer has presented anything — so a request arriving
 ## right after dsh_godot:hello would otherwise read back the clear-color

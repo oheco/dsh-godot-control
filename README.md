@@ -14,7 +14,7 @@
 | 上游提交 | [b82b5c519b1b17228f70d8effce1626f391bd1dd](https://github.com/hi-godot/godot-ai/commit/b82b5c519b1b17228f70d8effce1626f391bd1dd) |
 | WebSocket 协议 | Godot AI 协议 2 |
 | 上游源码与许可证 | [tpr/godot-ai/](tpr/godot-ai/) |
-| 本插件版本与分支 | 0.1.0，`ohos/0.1.0` |
+| 本插件版本与分支 | 0.1.1，`ohos/0.1.0` |
 
 Godot 侧复用上游的命令分发器、编辑器 handler 与运行时辅助代码，启动入口改为连接 DSH，并使用独立的 `dsh_godot` 目录和类名。DSH 侧是本仓库实现的原生插件，负责连接服务、认证、会话路由和工具注册。原版 Python 后端的启动、MCP 客户端配置和自动凭据发现流程由本版的 DSH 配对流程替代。
 
@@ -40,7 +40,20 @@ git -c http.proxy=socks5h://127.0.0.1:10808 clone --branch ohos/0.1.0 --single-b
 
 ### 3. 安装 Godot 编辑器插件
 
-将仓库中的 [godot/addons/dsh_godot](godot/addons/dsh_godot/) 整个目录复制到目标 Godot 项目的 `addons` 目录。安装后的项目结构应为：
+在仓库根目录执行以下命令，将完整 addon 同步到目标工程。工程路径可以包含空格：
+
+```sh
+node scripts/install-addon.mjs --project "/path/to/my-game"
+```
+
+已在本机启用 DSH 插件时，可以添加 `--pair`，直接将当前 DSH 的端口和 token 写入项目配置，不输出 token：
+
+```sh
+node scripts/install-addon.mjs --project "/path/to/my-game" --pair
+node scripts/install-addon.mjs --project "/path/to/my-game" --check
+```
+
+`--check` 核对全部插件文件的 SHA-256，忽略 Godot 自动生成的 `.uid`。安装来源、版本和摘要记录在项目 `.godot/dsh-godot-control/addon-source.json`。发现插件问题时先修改本仓库的适配输入、构建和验证，再运行此脚本同步；不要直接修改工程内的插件副本。安装后的项目结构应为：
 
 ```text
 my-game/
@@ -60,7 +73,19 @@ my-game/
 2. 在 Godot 的 **DSH Godot** 面板填写相同端口与令牌，点击“保存配对并连接”。
 3. 回到 DSH 刷新状态，确认显示该 Godot 项目路径。也可以让 DSH 调用 `godot_status` 查看连接状态，再调用 `godot_scene_tree` 读取当前场景。
 
-本版首次连接需要手动配对一次，保存后会自动重连。配对信息在 Godot 编辑器的私有配置目录中持久化，不写入项目、EditorSettings 或发行包。DSH 关闭或卸载插件会释放监听端口并结束待处理调用。端口冲突会在 DSH 插件加载时明确报错，可同时修改 DSH 保存配置和 Godot 配对端口。
+Godot 端配对保存在当前项目的 `.godot/dsh-godot-control/connection.cfg`，每个项目可以设置不同的服务端口和 token。插件每秒检查配置内容变化，外部工具或 AI 写入后会自动重新连接，无需重启编辑器。项目配置不强制要求 POSIX 权限，适用于鸿蒙共享目录。删除整个 `.godot` 后需要重新写入配对。
+
+配置格式如下，`token` 替换为 DSH 配对面板提供的 64 位小写十六进制值：
+
+```ini
+[connection]
+port=9500
+token="<DSH 配对 token>"
+```
+
+读取顺序为：显式环境变量 `DSH_GODOT_TOKEN` / `DSH_GODOT_WS_PORT`、项目配置、旧版编辑器私有配置。旧配置仅在项目配置不存在时回退；已有项目配置无效时保持未连接，避免误连到其他服务。面板保存只写当前项目，不修改旧全局配置。DSH 服务端仍在自己的应用配置目录中保存一份连接信息，同一服务的多个项目使用该服务的 token。
+
+配对文件不进入 Git、导出包或本插件发行包，也不写入 EditorSettings。DSH 关闭或卸载插件会释放监听端口并结束待处理调用。端口冲突会在 DSH 插件加载时明确报错，可同时修改 DSH 保存配置和 Godot 项目配对端口。
 
 ## 使用
 
@@ -94,6 +119,14 @@ my-game/
 ```
 
 场景修改保留 Godot 撤销记录；保存场景和文件写入直接持久化。修改前会读取编辑器的当前就绪状态；导入中拒绝修改，运行中仅允许适用的运行控制命令。超时、取消或断线不会自动重放操作，已经执行的编辑器操作也不会因取消而回滚，请先检查状态再决定重试。
+
+## 资源刷新与插件重载
+
+外部批量写入模型后，调用 `scan_filesystem` 并确认 `scan_completed=true`，再运行游戏。模型曾在缺少贴图时导入、或需要重建已有导入缓存时，调用 `reimport` 并传入资源 `paths`。它会在主线程执行真正的 `EditorFileSystem.reimport_files()`，完成后才返回。
+
+`reimported` 只包含导入有效且声明的生成文件存在的资源；`failed`、`not_found`、`skipped_non_imported` 分别列出失败、缺失和不走导入流程的路径。`all_succeeded` 表示没有失败或缺失路径，`import_completed` 表示同步导入已经结束。诊断限定为本次导入操作，不能将成功计数当成材质视觉正确的证明；需要检查贴图等具体结果。重复路径只执行一次导入。
+
+`reload_plugin` 用于扫描后禁用、重新启用插件本身，不重启 Godot，也不替代模型强制重导入。通常按“扫描并等待 → 必要时强制重导入 → 重新运行游戏”处理资源更新。
 
 ## 协议与开发
 
