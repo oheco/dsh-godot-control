@@ -145,7 +145,7 @@ func assign_resource(params: Dictionary) -> Dictionary:
 
 	var old_value = node.get(property)
 
-	_undo_redo.create_action("MCP: Assign %s to %s.%s" % [resource_path.get_file(), node.name, property])
+	_undo_redo.create_action("DSH Godot: Assign %s to %s.%s" % [resource_path.get_file(), node.name, property])
 	_undo_redo.add_do_property(node, property, res)
 	_undo_redo.add_undo_property(node, property, old_value)
 	_undo_redo.commit_action()
@@ -435,7 +435,7 @@ func _assign_created_resource(res: Resource, type_str: String, node_path: String
 
 	var old_value = node.get(property)
 
-	_undo_redo.create_action("MCP: Create %s for %s.%s" % [type_str, node.name, property])
+	_undo_redo.create_action("DSH Godot: Create %s for %s.%s" % [type_str, node.name, property])
 	_undo_redo.add_do_property(node, property, res)
 	_undo_redo.add_undo_property(node, property, old_value)
 	_undo_redo.add_do_reference(res)

@@ -1041,7 +1041,7 @@ static func _crash_body_for_state(state: int, server_status: Dictionary = {}) ->
 						+ "Local plugin version is %s (PEP 440 local build metadata) — uvx pins PyPI godot-ai==%s. "
 						+ "If you need checkout-local server code, ensure addons/dsh_godot resolves to your "
 						+ "dev tree (symlink/junction) with a `.venv`, or set GODOT_AI_VENV_PYTHON to that "
-						+ "venv's python binary, then Reload Plugin. Log should show 'MCP | using dev venv: ...'."
+						+ "venv's python binary, then Reload Plugin. Log should show 'DSH Godot | using dev venv: ...'."
 					) % [version, pin]
 				return (
 					"The server exited before the WebSocket handshake, even after a `uvx --refresh` retry. "
@@ -1859,17 +1859,17 @@ func _report_prewarm_outcome(client_id: String, prewarm: Variant) -> void:
 		return
 	if bool(data.get("timed_out", false)):
 		print(
-			"MCP | %s: package pre-warm timed out; the first client launch will build the environment"
+			"DSH Godot | %s: package pre-warm timed out; the first client launch will build the environment"
 			% client_id
 		)
 		return
 	if int(data.get("exit_code", -1)) != 0:
 		print(
-			"MCP | %s: package pre-warm failed (exit %d); the first client launch will build the environment"
+			"DSH Godot | %s: package pre-warm failed (exit %d); the first client launch will build the environment"
 			% [client_id, int(data.get("exit_code", -1))]
 		)
 		return
-	print("MCP | %s: package environment pre-warmed" % client_id)
+	print("DSH Godot | %s: package environment pre-warmed" % client_id)
 
 
 ## In-flight visual: rewrite the verb onto the button the user just

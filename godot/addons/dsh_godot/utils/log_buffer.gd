@@ -31,7 +31,7 @@ var enabled := true
 ## machine-driven lines like readiness flips, which spammed the console of
 ## every install (#626) — filesystem scans toggle readiness on each import.
 func log(msg: String, echo: bool = true) -> void:
-	var line := "MCP | %s" % msg
+	var line := "DSH Godot | %s" % msg
 	if enabled and console_echo and echo:
 		print(line)
 	_lines.append(line)

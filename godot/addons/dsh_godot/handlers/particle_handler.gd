@@ -94,7 +94,7 @@ func create_particle(params: Dictionary) -> Dictionary:
 		draw_pass_mesh_created = true
 		draw_material_created = true
 
-	_undo_redo.create_action("MCP: Create %s '%s'" % [_VALID_TYPES[type_str], node.name])
+	_undo_redo.create_action("DSH Godot: Create %s '%s'" % [_VALID_TYPES[type_str], node.name])
 	_undo_redo.add_do_method(parent, "add_child", node, true)
 	_undo_redo.add_do_method(node, "set_owner", scene_root)
 	if process_mat != null:
@@ -160,7 +160,7 @@ func set_main(params: Dictionary) -> Dictionary:
 		coerced[prop_name] = coerce_result.value
 		old_values[prop_name] = node.get(prop_name)
 
-	_undo_redo.create_action("MCP: Set particle main on %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Set particle main on %s" % node.name)
 	for prop_name in coerced:
 		_undo_redo.add_do_property(node, prop_name, coerced[prop_name])
 		_undo_redo.add_undo_property(node, prop_name, old_values[prop_name])
@@ -225,7 +225,7 @@ func _set_process_gpu(node: Node, node_path: String, properties: Dictionary) -> 
 			return ErrorCodes.make(ErrorCodes.INVALID_PARAMS, String(coerce_result.error))
 		coerced[prop_name] = coerce_result.value
 
-	_undo_redo.create_action("MCP: Set particle process on %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Set particle process on %s" % node.name)
 	if process_material_created:
 		_undo_redo.add_do_property(node, "process_material", mat)
 		_undo_redo.add_undo_property(node, "process_material", null)
@@ -280,7 +280,7 @@ func _set_process_cpu(node: Node, node_path: String, properties: Dictionary) -> 
 		coerced[prop_name] = coerce_result.value
 		old_values[prop_name] = node.get(prop_name)
 
-	_undo_redo.create_action("MCP: Set particle process on %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Set particle process on %s" % node.name)
 	for prop_name in coerced:
 		_undo_redo.add_do_property(node, prop_name, coerced[prop_name])
 		_undo_redo.add_undo_property(node, prop_name, old_values[prop_name])
@@ -377,7 +377,7 @@ func _set_draw_pass_gpu_3d(node: GPUParticles3D, node_path: String, pass_idx: in
 	if material != null:
 		old_material = node.material_override
 
-	_undo_redo.create_action("MCP: Set %s.draw_pass_%d" % [node.name, pass_idx])
+	_undo_redo.create_action("DSH Godot: Set %s.draw_pass_%d" % [node.name, pass_idx])
 	# Grow draw_passes first so draw_pass_N property exists before we set it.
 	if new_draw_passes != old_draw_passes:
 		_undo_redo.add_do_property(node, "draw_passes", new_draw_passes)
@@ -436,7 +436,7 @@ func _set_draw_pass_cpu_3d(node: CPUParticles3D, node_path: String, mesh_path: S
 			return ErrorCodes.make(ErrorCodes.WRONG_TYPE, "Resource at %s is not a Material" % material_path)
 		material = loaded_mat
 
-	_undo_redo.create_action("MCP: Set CPU particle draw on %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Set CPU particle draw on %s" % node.name)
 	if not mesh_path.is_empty():
 		_undo_redo.add_do_property(node, "mesh", mesh)
 		_undo_redo.add_undo_property(node, "mesh", old_mesh)
@@ -470,7 +470,7 @@ func _set_draw_pass_2d(node: Node, node_path: String, texture_path: String) -> D
 
 	var old_texture: Texture2D = node.get("texture")
 
-	_undo_redo.create_action("MCP: Set 2D particle texture on %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Set 2D particle texture on %s" % node.name)
 	_undo_redo.add_do_property(node, "texture", tex)
 	_undo_redo.add_undo_property(node, "texture", old_texture)
 	_undo_redo.commit_action()
@@ -734,7 +734,7 @@ func apply_preset(params: Dictionary) -> Dictionary:
 		process_target.set(prop_name, coerce_result.value)
 		applied_process.append(prop_name)
 
-	_undo_redo.create_action("MCP: Apply preset %s" % preset_name)
+	_undo_redo.create_action("DSH Godot: Apply preset %s" % preset_name)
 	_undo_redo.add_do_method(parent, "add_child", node, true)
 	_undo_redo.add_do_method(node, "set_owner", scene_root)
 	_undo_redo.add_do_reference(node)

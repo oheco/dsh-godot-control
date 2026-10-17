@@ -754,7 +754,7 @@ func _report_action_timeout(client_id: String, elapsed_msec: int) -> void:
 		else "%s did not report completion in time; waiting to inspect its result." % label
 	)
 	print(
-		"MCP | client action timed out: client=%s action=%s elapsed_ms=%d worker_alive=%s"
+		"DSH Godot | client action timed out: client=%s action=%s elapsed_ms=%d worker_alive=%s"
 		% [client_id, action, elapsed_msec, str(alive)]
 	)
 	action_timed_out.emit(client_id, action, detail)

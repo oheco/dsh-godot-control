@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
 export const PROTOCOL_VERSION = 2;
-export const SERVER_VERSION = '0.1.1';
+export const SERVER_VERSION = '0.1.2';
 export const MAX_MESSAGE_BYTES = 4 * 1024 * 1024;
 export const MAX_HANDSHAKE_BYTES = 8192;
 export const READINESS = ['ready', 'importing', 'playing', 'no_scene'];

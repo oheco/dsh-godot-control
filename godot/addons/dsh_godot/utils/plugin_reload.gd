@@ -50,7 +50,7 @@ static func _start_scan(filesystem: Object, timer: Object, work: int) -> void:
 	):
 		if _pending_scan.get("work", 0) != work:
 			ScriptWork.finish(work)
-		push_error("MCP | a plugin reload is already waiting for its filesystem scan")
+		push_error("DSH Godot | a plugin reload is already waiting for its filesystem scan")
 		return
 	if timer == null:
 		# Editor deadlines must not inherit a project's pause or time scale.
@@ -83,7 +83,7 @@ static func _finish_scan(work: int, timed_out: bool) -> void:
 		var pending := _take_scan()
 		ScriptWork.finish(pending.work)
 		push_error(
-			"MCP | filesystem scan did not finish within %d s; plugin left unchanged, retry reload"
+			"DSH Godot | filesystem scan did not finish within %d s; plugin left unchanged, retry reload"
 			% int(_scan_timeout_seconds)
 		)
 	else:
@@ -109,17 +109,17 @@ static func reload_enabled_plugin() -> Error:
 
 static func _toggle_enabled_plugin() -> Error:
 	if not EditorInterface.is_plugin_enabled(PLUGIN_CFG):
-		push_error("MCP | cannot reload a disabled plugin")
+		push_error("DSH Godot | cannot reload a disabled plugin")
 		return ERR_UNAVAILABLE
 	EditorInterface.set_plugin_enabled(PLUGIN_CFG, false)
 	EditorInterface.set_plugin_enabled(PLUGIN_CFG, true)
 	if not EditorInterface.is_plugin_enabled(PLUGIN_CFG):
-		push_error("MCP | plugin could not be re-enabled after reload")
+		push_error("DSH Godot | plugin could not be re-enabled after reload")
 		return FAILED
 	## Plugin callbacks save autoload changes while the temporary disabled state
 	## is still visible. Persist only after set_plugin_enabled has completed, or
 	## the next editor process can reopen with this working plugin disabled.
 	var error := ProjectSettings.save()
 	if error != OK:
-		push_error("MCP | reloaded plugin enablement could not be saved: %s" % error_string(error))
+		push_error("DSH Godot | reloaded plugin enablement could not be saved: %s" % error_string(error))
 	return error

@@ -236,7 +236,7 @@ static func _apply_mode(path: String, mode: int) -> bool:
 		return true
 	# Surface a real chmod failure (not the Windows no-op) so permission
 	# hardening on a sensitive config doesn't fail completely silently.
-	push_warning("MCP | could not set permissions on %s: %s" % [path, error_string(err)])
+	push_warning("DSH Godot | could not set permissions on %s: %s" % [path, error_string(err)])
 	return false
 
 

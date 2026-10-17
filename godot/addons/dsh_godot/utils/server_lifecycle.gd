@@ -337,7 +337,7 @@ func transport_lost(reason := "Authenticated server endpoint was lost.") -> void
 		],
 	)
 	print(
-		"MCP | server endpoint lost (%s); re-probing in %ds (attempt %d of %d)"
+		"DSH Godot | server endpoint lost (%s); re-probing in %ds (attempt %d of %d)"
 		% [reason, int(delay), _endpoint_recovery_attempts, limit]
 	)
 	if bool(_plan.get("automatic_effects", true)):
@@ -540,7 +540,7 @@ func _finish_stop() -> void:
 	_episode = _dormant_episode(completed_id)
 	_publish()
 	if stopped_pid > 1:
-		print("MCP | stopped server (PID %d)" % stopped_pid)
+		print("DSH Godot | stopped server (PID %d)" % stopped_pid)
 	if continue_with_start:
 		_begin_start_episode()
 
@@ -561,9 +561,9 @@ func _ready(kind: String, transport, version: String) -> void:
 	_episode["launch"] = {}
 	_publish()
 	if kind == "owned":
-		print("MCP | started server (PID %d)" % get_server_pid())
+		print("DSH Godot | started server (PID %d)" % get_server_pid())
 	elif kind == "adopted":
-		print("MCP | adopted external server")
+		print("DSH Godot | adopted external server")
 	transport_ready.emit(transport.ws_port(), transport.ws_capability())
 	startup_finished.emit(kind)
 

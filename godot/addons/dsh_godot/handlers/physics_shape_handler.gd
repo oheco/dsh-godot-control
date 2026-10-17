@@ -561,7 +561,7 @@ static func _commit_generated_action(
 	undo_redo: EditorUndoRedoManager,
 	execute: bool,
 ) -> void:
-	undo_redo.create_action("MCP: Generate physics shapes for %d mesh(es)" % created_nodes.size(), UndoRedo.MERGE_DISABLE, scene_root)
+	undo_redo.create_action("DSH Godot: Generate physics shapes for %d mesh(es)" % created_nodes.size(), UndoRedo.MERGE_DISABLE, scene_root)
 	for entry in created_nodes:
 		if bool(entry.get("refresh", false)):
 			undo_redo.add_do_method(ClassDB, "class_set_property", entry.collision, "shape", entry.new_shape)
@@ -947,7 +947,7 @@ func autofit(params: Dictionary) -> Dictionary:
 	var size_info := _apply_shape_size(target_shape, shape_type, bounds, is_3d)
 	var old_shape = existing_shape if is_3d else existing_shape_2d
 
-	_undo_redo.create_action("MCP: Autofit %s on %s" % [shape_class, node.name])
+	_undo_redo.create_action("DSH Godot: Autofit %s on %s" % [shape_class, node.name])
 	if needs_new_shape:
 		_undo_redo.add_do_property(node, "shape", target_shape)
 		_undo_redo.add_undo_property(node, "shape", old_shape)

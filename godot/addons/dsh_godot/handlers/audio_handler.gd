@@ -69,7 +69,7 @@ func create_player(params: Dictionary) -> Dictionary:
 	if not node_name.is_empty():
 		node.name = node_name
 
-	_undo_redo.create_action("MCP: Create %s '%s'" % [_VALID_TYPES[type_str], node.name])
+	_undo_redo.create_action("DSH Godot: Create %s '%s'" % [_VALID_TYPES[type_str], node.name])
 	_undo_redo.add_do_method(parent, "add_child", node, true)
 	_undo_redo.add_do_method(node, "set_owner", scene_root)
 	_undo_redo.add_do_reference(node)
@@ -123,7 +123,7 @@ func set_stream(params: Dictionary) -> Dictionary:
 
 	var old_stream: AudioStream = player.stream
 
-	_undo_redo.create_action("MCP: Set audio stream on %s" % player.name)
+	_undo_redo.create_action("DSH Godot: Set audio stream on %s" % player.name)
 	_undo_redo.add_do_property(player, "stream", loaded)
 	_undo_redo.add_undo_property(player, "stream", old_stream)
 	_undo_redo.commit_action()
@@ -178,7 +178,7 @@ func set_playback(params: Dictionary) -> Dictionary:
 	for key in updates:
 		old_values[key] = player.get(key)
 
-	_undo_redo.create_action("MCP: Update playback on %s" % player.name)
+	_undo_redo.create_action("DSH Godot: Update playback on %s" % player.name)
 	for key in updates:
 		_undo_redo.add_do_property(player, key, updates[key])
 		_undo_redo.add_undo_property(player, key, old_values[key])

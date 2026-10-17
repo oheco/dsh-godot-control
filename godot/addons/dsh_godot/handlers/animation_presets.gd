@@ -110,7 +110,7 @@ func preset_fade(params: Dictionary) -> Dictionary:
 	])
 
 	handler._commit_animation_add(
-		"MCP: Create animation %s" % anim_name,
+		"DSH Godot: Create animation %s" % anim_name,
 		player, library, created_library, anim_name, anim, old_anim,
 	)
 
@@ -214,7 +214,7 @@ func preset_slide(params: Dictionary) -> Dictionary:
 	])
 
 	handler._commit_animation_add(
-		"MCP: Create animation %s" % anim_name,
+		"DSH Godot: Create animation %s" % anim_name,
 		player, library, created_library, anim_name, anim, old_anim,
 	)
 
@@ -328,7 +328,7 @@ func preset_shake(params: Dictionary) -> Dictionary:
 	handler._do_add_property_track(anim, track_path, "linear", kfs)
 
 	handler._commit_animation_add(
-		"MCP: Create animation %s" % anim_name,
+		"DSH Godot: Create animation %s" % anim_name,
 		player, library, created_library, anim_name, anim, old_anim,
 	)
 
@@ -424,7 +424,7 @@ func preset_pulse(params: Dictionary) -> Dictionary:
 	])
 
 	handler._commit_animation_add(
-		"MCP: Create animation %s" % anim_name,
+		"DSH Godot: Create animation %s" % anim_name,
 		player, library, created_library, anim_name, anim, old_anim,
 	)
 

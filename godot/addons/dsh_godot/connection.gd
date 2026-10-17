@@ -134,7 +134,7 @@ func _process(delta: float) -> void:
 			if not _connected:
 				_connected = true
 				if log_buffer:
-					log_buffer.log("connected to server; authenticating")
+					log_buffer.log("connected to DSH; authenticating")
 				_send_auth_hello()
 
 			_drain_inbound_packets(_peer)
@@ -143,7 +143,7 @@ func _process(delta: float) -> void:
 					_handshake_started_msec > 0
 					and Time.get_ticks_msec() - _handshake_started_msec >= HANDSHAKE_TIMEOUT_MSEC
 				):
-					_fail_handshake(CLOSE_CODE_AUTH_FAILED, "v4 editor handshake timed out")
+					_fail_handshake(CLOSE_CODE_AUTH_FAILED, "DSH editor handshake timed out")
 				return
 
 			_check_state_changes()
@@ -361,7 +361,7 @@ func _attempt_reconnect() -> void:
 	_reconnect_attempt += 1
 	_reconnect_timer = delay
 	_log_reconnect_transition(
-		"connecting to server (attempt %d)" % _reconnect_attempt,
+		"connecting to DSH (attempt %d)" % _reconnect_attempt,
 		_reconnect_attempt,
 	)
 	## Always create a fresh WebSocketPeer before reconnecting. A peer that has
@@ -479,20 +479,25 @@ static func _close_reason_text(code: int, reason: String) -> String:
 
 
 func _handshake_close_diagnostic(code: int, authenticated := false) -> Dictionary:
+	if code == CLOSE_CODE_DUPLICATE_SESSION:
+		return {
+			"reason_code": "duplicate_session",
+			"reason": "This session ID is already connected to DSH; retrying with a new ID.",
+		}
 	if code == CLOSE_CODE_PROTOCOL_MISMATCH:
 		return {
 			"reason_code": "ws_protocol_mismatch",
-			"reason": "The editor and server use different Godot AI major protocols; update/restart both sides.",
+			"reason": "The editor and DSH use different connection protocols; update the DSH plugin and project addon together.",
 		}
 	if code == CLOSE_CODE_AUTH_FAILED:
 		return {
 			"reason_code": "ws_auth_failed",
-			"reason": "The v4 editor capability was rejected; restart the managed server from this Godot editor.",
+			"reason": "DSH rejected authentication. Check the port and pairing token against the DSH Godot pairing panel.",
 		}
 	if not authenticated:
 		return {
 			"reason_code": "ws_handshake_failed",
-			"reason": "The v4 handshake closed before authentication; update/restart both editor and server.",
+			"reason": "The connection to DSH closed before authentication. Check the DSH service and this project's pairing.",
 		}
 	return {}
 
@@ -576,6 +581,12 @@ func get_transport_status() -> Dictionary:
 	elif not _transient_diagnostic.is_empty():
 		for key in _transient_diagnostic:
 			snapshot[key] = _transient_diagnostic[key]
+	if snapshot.phase == "retrying" and not snapshot.has("reason"):
+		snapshot["reason_code"] = "dsh_unreachable"
+		snapshot["reason"] = "Cannot reach DSH. Check that DSH Godot Control is enabled and the pairing port matches."
+	snapshot["endpoint"] = "ws://127.0.0.1:%d" % ws_port
+	snapshot["editor_pid"] = OS.get_process_id()
+	snapshot["session_id"] = _session_id
 	return snapshot
 
 
@@ -714,7 +725,7 @@ func _build_auth_response() -> Dictionary:
 func _classify_message(raw: String) -> Dictionary:
 	var parsed = JSON.parse_string(raw)
 	if parsed == null:
-		push_warning("MCP: failed to parse websocket JSON")
+		push_warning("DSH Godot: failed to parse websocket JSON")
 		return {"kind": "ignore", "parsed": null}
 	if not (parsed is Dictionary):
 		return {"kind": "ignore", "parsed": null}
@@ -782,13 +793,13 @@ func _handle_handshake_ack(parsed: Dictionary) -> void:
 	_last_play_state = false
 	_transient_diagnostic.clear()
 	if log_buffer:
-		log_buffer.log("authenticated with server")
+		log_buffer.log("authenticated with DSH (session %s, PID %d)" % [_session_id, OS.get_process_id()])
 	connection_state_changed.emit(true)
 
 
 func _fail_handshake(code: int, reason: String) -> void:
 	if log_buffer:
-		log_buffer.log("v4 websocket handshake failed: %s" % reason)
+		log_buffer.log("websocket handshake with DSH failed: %s" % reason)
 	_peer.close(code, reason)
 
 
@@ -897,7 +908,7 @@ static func _constant_time_equal(left: String, right: String) -> bool:
 ## server's pending future resolves instead of waiting out the full
 ## command timeout.
 func _reply_malformed_command(parsed: Dictionary) -> void:
-	push_warning("MCP: dropping malformed command frame (request_id/command must be String, params a Dictionary)")
+	push_warning("DSH Godot: dropping malformed command frame (request_id/command must be String, params a Dictionary)")
 	var rid: Variant = parsed.get("request_id")
 	if rid is String and not String(rid).is_empty():
 		var response := ErrorCodes.make(

@@ -128,7 +128,7 @@ func _ready() -> void:
 	_logger_attached = true
 	## Routed to the editor's Output panel via Godot's remote-stdout
 	## forwarder — handy when diagnosing why capture timed out.
-	print("[dsh_godot game_helper] registered mcp capture (debugger active=%s, logger=%s)"
+	print("DSH Godot | game helper registered debugger capture (debugger active=%s, logger=%s)"
 		% [EngineDebugger.is_active(), _logger_attached])
 	## Boot beacon so the editor side can confirm the autoload ran even
 	## if no screenshot was ever requested.

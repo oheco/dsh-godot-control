@@ -416,7 +416,7 @@ static func _bake_commit(job: Dictionary) -> void:
 			_force_map_sync_2d(map)
 
 	var undo_redo: EditorUndoRedoManager = job.undo_redo
-	undo_redo.create_action("MCP: Bake navigation on %s" % region.name)
+	undo_redo.create_action("DSH Godot: Bake navigation on %s" % region.name)
 	if dimension == "3d":
 		undo_redo.add_do_method(region, "set_navigation_mesh", working)
 		undo_redo.add_undo_method(region, "set_navigation_mesh", job.before)

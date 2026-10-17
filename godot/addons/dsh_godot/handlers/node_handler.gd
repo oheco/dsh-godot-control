@@ -66,7 +66,7 @@ func create_node(params: Dictionary) -> Dictionary:
 	if not node_name.is_empty():
 		new_node.name = node_name
 
-	_undo_redo.create_action("MCP: Create %s" % new_node.name)
+	_undo_redo.create_action("DSH Godot: Create %s" % new_node.name)
 	_undo_redo.add_do_method(parent, "add_child", new_node, true)
 	_undo_redo.add_do_method(new_node, "set_owner", scene_root)
 	_undo_redo.add_do_reference(new_node)
@@ -100,7 +100,7 @@ func delete_node(params: Dictionary) -> Dictionary:
 	var parent := node.get_parent()
 	var idx := node.get_index()
 
-	_undo_redo.create_action("MCP: Delete %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Delete %s" % node.name)
 	_undo_redo.add_do_method(parent, "remove_child", node)
 	_undo_redo.add_undo_method(parent, "add_child", node, true)
 	_undo_redo.add_undo_method(parent, "move_child", node, idx)
@@ -155,7 +155,7 @@ func reparent_node(params: Dictionary) -> Dictionary:
 	## those owners as part of the recorded action.
 	var descendants := _collect_descendants(node)
 
-	_undo_redo.create_action("MCP: Reparent %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Reparent %s" % node.name)
 	_undo_redo.add_do_method(old_parent, "remove_child", node)
 	_undo_redo.add_do_method(new_parent, "add_child", node, true)
 	_undo_redo.add_do_method(node, "set_owner", scene_root)
@@ -346,7 +346,7 @@ func set_property(params: Dictionary) -> Dictionary:
 		if coerce_err != null:
 			return coerce_err
 
-	_undo_redo.create_action("MCP: Set %s.%s" % [node.name, property])
+	_undo_redo.create_action("DSH Godot: Set %s.%s" % [node.name, property])
 	_undo_redo.add_do_property(node, property, value)
 	_undo_redo.add_undo_property(node, property, old_value)
 	if instantiated_resource:
@@ -448,7 +448,7 @@ func rename_node(params: Dictionary) -> Dictionary:
 		if sibling != node and String(sibling.name) == new_name:
 			return ErrorCodes.make(ErrorCodes.INVALID_PARAMS, "A sibling already has the name '%s'" % new_name)
 
-	_undo_redo.create_action("MCP: Rename %s to %s" % [old_name, new_name])
+	_undo_redo.create_action("DSH Godot: Rename %s to %s" % [old_name, new_name])
 	_undo_redo.add_do_property(node, "name", new_name)
 	_undo_redo.add_undo_property(node, "name", old_name)
 	_undo_redo.commit_action()
@@ -492,7 +492,7 @@ func duplicate_node(params: Dictionary) -> Dictionary:
 	## their own undo set_owner.
 	var descendants := _collect_descendants(dup)
 
-	_undo_redo.create_action("MCP: Duplicate %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Duplicate %s" % node.name)
 	_undo_redo.add_do_method(parent, "add_child", dup, true)
 	_undo_redo.add_do_method(dup, "set_owner", scene_root)
 	for child in descendants:
@@ -535,7 +535,7 @@ func move_node(params: Dictionary) -> Dictionary:
 	if new_index < 0 or new_index >= sibling_count:
 		return ErrorCodes.make(ErrorCodes.VALUE_OUT_OF_RANGE, "Index %d out of range (0..%d)" % [new_index, sibling_count - 1])
 
-	_undo_redo.create_action("MCP: Move %s to index %d" % [node.name, new_index])
+	_undo_redo.create_action("DSH Godot: Move %s to index %d" % [node.name, new_index])
 	_undo_redo.add_do_method(parent, "move_child", node, new_index)
 	_undo_redo.add_undo_method(parent, "move_child", node, old_index)
 	_undo_redo.commit_action()
@@ -568,7 +568,7 @@ func add_to_group(params: Dictionary) -> Dictionary:
 	if node.is_in_group(group):
 		return {"data": {"path": node_path, "group": group, "already_member": true, "undoable": false, "reason": "No change made"}}
 
-	_undo_redo.create_action("MCP: Add %s to group %s" % [node.name, group])
+	_undo_redo.create_action("DSH Godot: Add %s to group %s" % [node.name, group])
 	_undo_redo.add_do_method(node, "add_to_group", group, true)
 	_undo_redo.add_undo_method(node, "remove_from_group", group)
 	_undo_redo.commit_action()
@@ -600,7 +600,7 @@ func remove_from_group(params: Dictionary) -> Dictionary:
 	if not node.is_in_group(group):
 		return {"data": {"path": node_path, "group": group, "not_member": true, "undoable": false, "reason": "Node not in group"}}
 
-	_undo_redo.create_action("MCP: Remove %s from group %s" % [node.name, group])
+	_undo_redo.create_action("DSH Godot: Remove %s from group %s" % [node.name, group])
 	_undo_redo.add_do_method(node, "remove_from_group", group)
 	_undo_redo.add_undo_method(node, "add_to_group", group, true)
 	_undo_redo.commit_action()

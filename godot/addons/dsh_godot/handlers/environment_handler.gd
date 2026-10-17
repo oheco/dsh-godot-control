@@ -154,7 +154,7 @@ func _assign_environment(env: Environment, sky: Sky, sky_material: ProceduralSky
 
 	var old_env = (node as WorldEnvironment).environment
 
-	_undo_redo.create_action("MCP: Create Environment (%s) for %s" % [preset, node.name])
+	_undo_redo.create_action("DSH Godot: Create Environment (%s) for %s" % [preset, node.name])
 	_undo_redo.add_do_property(node, "environment", env)
 	_undo_redo.add_undo_property(node, "environment", old_env)
 	_undo_redo.add_do_reference(env)

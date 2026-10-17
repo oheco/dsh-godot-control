@@ -147,7 +147,7 @@ func _swap() -> void:
 		_installer.call("discard_stage")
 		_outcome = "previous_tree_retained"
 	else:
-		print("MCP | update to %s swapped in; reloading the plugin in this editor" % str(_package.record.to_version))
+		print("DSH Godot | update to %s swapped in; reloading the plugin in this editor" % str(_package.record.to_version))
 		var verified: Dictionary = _installer.call("verify_after_restart", LIVE_ROOT)
 		_outcome = str(verified.get("status", ""))
 		if _outcome != "success" and _outcome != "rolled_back":
@@ -222,7 +222,7 @@ func _enable() -> void:
 	if not _failure.is_empty():
 		_show_failure(_failure)
 		return
-	print("MCP | update activation completed in editor PID %d" % OS.get_process_id())
+	print("DSH Godot | update activation completed in editor PID %d" % OS.get_process_id())
 	queue_free()
 
 
@@ -365,11 +365,11 @@ func _record(status: String, message: String) -> void:
 			"editor_pid": OS.get_process_id(), "from_version": _package.record.from_version,
 			"to_version": _package.record.to_version, "unix": Time.get_unix_time_from_system()}))
 	else:
-		push_error("MCP | could not write update activation evidence: %s" % error_string(FileAccess.get_open_error()))
+		push_error("DSH Godot | could not write update activation evidence: %s" % error_string(FileAccess.get_open_error()))
 
 
 func _show_failure(message: String) -> void:
-	push_error("MCP | %s" % message)
+	push_error("DSH Godot | %s" % message)
 	if DisplayServer.get_name() == "headless":
 		queue_free()
 		return

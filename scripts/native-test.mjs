@@ -11,6 +11,7 @@ import { createOperations } from '../operations.js';
 import { setupResourceFixture, verifyResourceReimport } from './native-resource-fixture.mjs';
 import { setupPairingFixture, verifyPairingFixture } from './native-pairing-fixture.mjs';
 import { verifyHeadlessExport } from './native-export-fixture.mjs';
+import { assertDshPluginLogs, setupDockStatusFixture, verifyDockStatusFixture, verifyMultipleEditors } from './native-multi-fixture.mjs';
 const source = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 if (!process.env.TMPDIR || !process.env.XDG_CACHE_HOME) throw new Error('TMPDIR and XDG_CACHE_HOME are required.');
 const work = await mkdtemp(path.join(process.env.TMPDIR, 'dsh-godot-native-'));
@@ -19,7 +20,13 @@ await mkdir(evidence, { recursive: true, mode: 0o700 });
 const engine = process.env.GODOT_BIN || '/data/storage/el2/base/haps/entry/cache/godot-editor-window-mode-20261012/editor-cli-complete/godot';
 const report = { started_at: new Date().toISOString(), engine, steps: [], ok: false };
 const token = randomBytes(32).toString('hex'), bridge = new GodotBridge({ port: 0, token });
-const execute = createOperations(bridge); await bridge.start();
+const secrets = new Set([token]);
+const redact = text => [...secrets].reduce((value, secret) => value.replaceAll(secret, '[redacted]'), String(text));
+const executeRaw = createOperations(bridge);
+let sessionId;
+// Pin this fixture's calls to its selected editor; never infer a target at dispatch.
+const execute = (tool, args = {}) => executeRaw(tool, { session_id: sessionId, ...args });
+await bridge.start();
 const project = path.join(work, 'project with spaces'); await mkdir(project, { recursive: true });
 await cp(path.join(source, 'godot/addons'), path.join(project, 'addons'), { recursive: true });
 await writeFile(path.join(project, 'project.godot'), '[application]\nconfig/name="DSH Godot Verification"\nrun/main_scene="res://main.tscn"\n[rendering]\nrenderer/rendering_method="gl_compatibility"\n[editor]\nrun/main_run_args="--headless"\n[editor_plugins]\nenabled=PackedStringArray("res://addons/dsh_godot/plugin.cfg")\n');
@@ -27,6 +34,7 @@ await writeFile(path.join(project, 'main.tscn'), '[gd_scene format=3]\n[node nam
 await writeFile(path.join(project, 'bootstrap.gd'), 'extends SceneTree\nfunc _initialize() -> void:\n\tcall_deferred("start")\nfunc start() -> void:\n\tprint("DSH_TEST_BOOTSTRAP")\n\tEditorInterface.open_scene_from_path("res://main.tscn")\n\tawait create_timer(5).timeout\n\tvar queue: Array[Node] = [root]\n\twhile not queue.is_empty():\n\t\tvar node: Node = queue.pop_front()\n\t\tvar script: Script = node.get_script()\n\t\tif script != null and script.resource_path == "res://addons/dsh_godot/plugin.gd":\n\t\t\tvar connection = node.get("_connection")\n\t\t\tprint("DSH_TEST_CONNECTION ", JSON.stringify(connection.get_transport_status()) if connection != null else "missing")\n\t\tfor child in node.get_children():\n\t\t\tqueue.append(child)\n');
 await setupResourceFixture(project);
 await setupPairingFixture(project);
+await setupDockStatusFixture(project);
 const pairingDirectory = path.join(project, '.godot/dsh-godot-control');
 const pairingFile = path.join(pairingDirectory, 'connection.cfg');
 async function pair(port, secret) {
@@ -43,8 +51,10 @@ let editor, log = '';
 async function run(args, name, extraEnv = {}) {
   const child = spawn(engine, args, { env: { ...env, ...extraEnv }, stdio: ['ignore', 'pipe', 'pipe'] }); let output = '';
   child.stdout.on('data', data => { output += data; }); child.stderr.on('data', data => { output += data; });
-  const [code, signal] = await once(child, 'exit'); await writeFile(path.join(evidence, name), output);
-  assert.equal(code, 0, `${name}: exit ${code} ${signal}\n${output.slice(-6000)}`); assert.ok(!/SCRIPT ERROR|Parse Error|Failed to load script/.test(output), output.slice(-12000)); return output;
+  const [code, signal] = await once(child, 'exit'); output = redact(output); await writeFile(path.join(evidence, name), output);
+  assert.equal(code, 0, `${name}: exit ${code} ${signal}\n${output.slice(-6000)}`); assert.ok(!/SCRIPT ERROR|Parse Error|Failed to load script/.test(output), output.slice(-12000));
+  assertDshPluginLogs(output, name);
+  return output;
 }
 async function step(name, operation) { await operation(); report.steps.push(name); console.log('PASS', name); }
 try {
@@ -58,12 +68,20 @@ try {
   report.editor_pid = editor.pid;
   const deadline = Date.now() + Number(process.env.GODOT_STARTUP_TIMEOUT_MS || 90000);
   while (!bridge.status().connected && Date.now() < deadline && editor.exitCode === null) await delay(100);
-  assert.ok(bridge.status().connected, `Editor failed to authenticate:\n${log}`);
+  assert.ok(bridge.status().connected, `Editor failed to authenticate:\n${redact(log)}`);
   while (bridge.status().sessions[0].readiness !== 'ready' && Date.now() < deadline) await delay(100);
   await step('mutual HMAC handshake with actual GDScript', async () => { assert.equal(bridge.status().sessions[0].readiness, 'ready'); assert.equal(bridge.status().sessions[0].server_launch_mode, 'dsh'); report.session = bridge.status().sessions[0]; });
+  sessionId = report.session.session_id;
+  await step('a single real editor still requires an explicit session ID', async () => {
+    await assert.rejects(executeRaw('godot_scene_tree'), { code: 'SESSION_REQUIRED' });
+    await assert.rejects(executeRaw('godot_node', { command: 'create_node', params: { type: 'Node3D', name: 'MustNotDispatch', parent_path: '/Main' } }), { code: 'SESSION_REQUIRED' });
+    assert.equal((await execute('godot_scene_tree')).nodes.some(node => node.name === 'MustNotDispatch'), false);
+  });
   await verifyPairingFixture({ execute, report });
+  await verifyDockStatusFixture({ execute, report });
   await step('project-local pairing reloads without restarting editor', async () => {
     const alternate = new GodotBridge({ port: 0, token: randomBytes(32).toString('hex') });
+    secrets.add(alternate.token);
     await alternate.start();
     try {
       await pair(alternate.port, alternate.token);
@@ -101,14 +119,19 @@ try {
   await step('read editor state and logs', async () => { const state = await execute('godot_editor', { command: 'get_editor_state' }); assert.equal(state.project_name, 'DSH Godot Verification'); await execute('godot_editor', { command: 'get_logs', params: { source: 'editor', count: 20 } }); });
   await step('delete node and verify hierarchy', async () => { await execute('godot_node', { command: 'delete_node', params: { path: '/Main/Player' } }); const tree = await execute('godot_scene_tree'); assert.equal(tree.nodes.some(node => node.name === 'Player'), false); });
   await step('reload plugin and reconnect without restarting editor', async () => {
-    const previous = bridge.resolveSession();
+    const previousId = sessionId, previous = bridge.resolveSession(previousId);
     const result = await execute('godot_editor', { command: 'reload_plugin' });
     assert.equal(result.status, 'reloading');
     const until = Date.now() + 90000;
     while ((bridge.sessions.get(report.session.session_id) === previous || !bridge.status().connected) && Date.now() < until && editor.exitCode === null) await delay(100);
     assert.equal(bridge.status().connected, true);
-    assert.notEqual(bridge.resolveSession(), previous);
-    assert.equal(bridge.status().sessions[0].editor_pid, report.session.editor_pid);
+    const reloaded = bridge.status().sessions.find(value => value.editor_pid === editor.pid && path.resolve(value.project_path) === project);
+    assert.ok(reloaded, 'The selected editor must reconnect after plugin reload');
+    sessionId = reloaded.session_id;
+    assert.notEqual(sessionId, previousId);
+    assert.notEqual(bridge.resolveSession(sessionId), previous);
+    await assert.rejects(executeRaw('godot_scene_tree', { session_id: previousId }), { code: 'SESSION_NOT_FOUND' });
+    report.reloaded_session = reloaded;
   });
   await step('runtime helper announces readiness and evaluates over corrected debugger channel', async () => {
     try {
@@ -127,14 +150,18 @@ try {
       report.runtime_bridge = { helper_live: state.helper_live, game_capture_ready: state.game_capture_ready, evaluated: evaluated.result };
     } finally { await execute('godot_project', { command: 'stop_project' }); }
   });
+  await verifyMultipleEditors({ work, source, evidence, engine, env, bridge, execute: executeRaw, editor, project, report });
+  log = redact(log);
+  await step('native editor, runtime and lifecycle output consistently identify DSH Godot', async () => { assertDshPluginLogs(log, 'editor and game output', { expectPrefix: true }); });
   await writeFile(path.join(evidence, 'editor.log'), log);
   assert.ok(!/SCRIPT ERROR|Parse Error|Failed to load script/.test(log), log.slice(-12000));
   report.ok = true;
-} catch (error) { report.error = { code: error.code || 'ASSERTION_FAILED', message: error.message }; console.error(report.error.message); process.exitCode = 1; }
+} catch (error) { report.error = { code: error.code || 'ASSERTION_FAILED', message: redact(error.message) }; console.error(report.error.message); process.exitCode = 1; }
 finally {
   if (editor && editor.exitCode === null) { const exited = once(editor, 'exit'); editor.kill('SIGTERM'); await exited; }
+  log = redact(log);
   await writeFile(path.join(evidence, 'editor.log'), log);
-  await bridge.close(); report.finished_at = new Date().toISOString(); await writeFile(path.join(evidence, 'report.json'), JSON.stringify(report, null, 2) + '\n');
+  await bridge.close(); report.finished_at = new Date().toISOString(); await writeFile(path.join(evidence, 'report.json'), redact(JSON.stringify(report, null, 2)) + '\n');
   const resolved = await realpath(work), parent = await realpath(process.env.TMPDIR);
   assert.equal(path.dirname(resolved), parent); assert.ok(path.basename(resolved).startsWith('dsh-godot-native-')); await rm(resolved, { recursive: true });
   console.log(JSON.stringify({ ok: report.ok, steps: report.steps.length, report: path.join(evidence, 'report.json') }));

@@ -131,7 +131,7 @@ static func _ensure_loaded() -> void:
 		_load()
 		if not _instances.is_empty() and not _cache_is_coherent():
 			_stale_session = true
-			push_warning("MCP | %s" % RESTART_TO_FINISH_UPDATE)
+			push_warning("DSH Godot | %s" % RESTART_TO_FINISH_UPDATE)
 	_load_mutex.unlock()
 
 
@@ -143,14 +143,14 @@ static func _load() -> void:
 	for path in _CLIENT_SCRIPT_PATHS:
 		var script := load(path) as GDScript
 		if script == null:
-			push_warning("MCP | failed to load client descriptor %s" % path)
+			push_warning("DSH Godot | failed to load client descriptor %s" % path)
 			continue
 		var inst: DshGodotClient = script.new()
 		if inst.id.is_empty():
-			push_warning("MCP | client descriptor %s has empty id" % path)
+			push_warning("DSH Godot | client descriptor %s has empty id" % path)
 			continue
 		if by_id.has(inst.id):
-			push_warning("MCP | duplicate client id: %s" % inst.id)
+			push_warning("DSH Godot | duplicate client id: %s" % inst.id)
 			continue
 		instances.append(inst)
 		by_id[inst.id] = inst

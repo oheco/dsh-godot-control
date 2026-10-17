@@ -118,7 +118,7 @@ func set_points(params: Dictionary) -> Dictionary:
 	_apply_snapshot_to_curve(new_curve, new_snapshot)
 	var old_curve: Resource = null if curve_created else curve
 
-	_undo_redo.create_action("MCP: Set %d points on %s.%s" % [new_snapshot.size(), node.name, property])
+	_undo_redo.create_action("DSH Godot: Set %d points on %s.%s" % [new_snapshot.size(), node.name, property])
 	_undo_redo.add_do_property(node, property, new_curve)
 	_undo_redo.add_undo_property(node, property, old_curve)
 	_undo_redo.add_do_reference(new_curve)

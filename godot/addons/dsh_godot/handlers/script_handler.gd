@@ -530,7 +530,7 @@ func attach_script(params: Dictionary) -> Dictionary:
 
 	var old_script: Script = node.get_script()
 
-	_undo_redo.create_action("MCP: Attach script to %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Attach script to %s" % node.name)
 	_undo_redo.add_do_method(node, "set_script", script)
 	_undo_redo.add_undo_method(node, "set_script", old_script)
 	_undo_redo.commit_action()
@@ -574,7 +574,7 @@ func detach_script(params: Dictionary) -> Dictionary:
 	if old_script == null:
 		return {"data": {"path": node_path, "had_script": false, "undoable": false, "reason": "No script attached"}}
 
-	_undo_redo.create_action("MCP: Detach script from %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Detach script from %s" % node.name)
 	_undo_redo.add_do_method(node, "set_script", null)
 	_undo_redo.add_undo_method(node, "set_script", old_script)
 	_undo_redo.commit_action()

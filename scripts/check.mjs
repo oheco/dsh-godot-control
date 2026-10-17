@@ -20,5 +20,13 @@ assert.ok(!plugin.includes('@REGISTRATION@')); assert.ok(plugin.includes('Editor
 const validator = await readFile(path.join(root, 'godot/addons/dsh_godot/utils/path_validator.gd'), 'utf8');
 assert.ok(validator.includes('segments[1].to_lower() == "dsh_godot"'), 'Derived addon must protect its own loaded directory.');
 assert.equal(await readFile(path.join(root, 'godot/resource_reimport.gd'), 'utf8'), await readFile(path.join(root, 'godot/addons/dsh_godot/utils/resource_reimport.gd'), 'utf8'), 'Rebuild generated addon after changing resource import source.');
+async function checkAddonBranding(directory) {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const filename = path.join(directory, entry.name);
+    if (entry.isDirectory()) await checkAddonBranding(filename);
+    else if (entry.name.endsWith('.gd')) assert.doesNotMatch(await readFile(filename, 'utf8'), /\bMCP\s*(?:\||:|debugger:)|registered mcp capture/, `Old plugin log or undo label: ${filename}`);
+  }
+}
+await checkAddonBranding(path.join(root, 'godot/addons/dsh_godot'));
 for (const dependency of Object.values(JSON.parse(await readFile(path.join(root, 'dependencies.json'), 'utf8')))) { assert.match(dependency.sha256, /^[0-9a-f]{64}$/); assert.equal(dependency.license, 'MIT'); await stat(path.join(root, dependency.directory, 'LICENSE')); }
 console.log(`Checked ${files.length} JavaScript modules, package inputs, ${commands.length} commands, independent addon namespace and dependency records.`);

@@ -202,7 +202,7 @@ func _map_outcome(
 			var paused_err := ErrorCodes.make(
 				ErrorCodes.INTERNAL_ERROR,
 				(
-					"Test run aborted: the MCP transport was paused at a between-test "
+					"Test run aborted: the DSH transport was paused at a between-test "
 					+ "checkpoint (pause depth %d) — a paused transport cannot service "
 					+ "the WebSocket heartbeat, so continuing would starve the session. "
 					+ "Partial results: test_manage(op=\"results_get\")."

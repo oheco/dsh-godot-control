@@ -32,7 +32,7 @@ func set_item(params: Dictionary) -> Dictionary:
 		return ErrorCodes.make(ErrorCodes.VALUE_OUT_OF_RANGE,
 			"orientation must be in 0..24 (GridMap baked rotations), got %d" % orientation)
 	var prev := _capture_cell_state(node, pos)
-	_undo_redo.create_action("MCP: GridMap set_item")
+	_undo_redo.create_action("DSH Godot: GridMap set_item")
 	_undo_redo.add_do_method(node, "set_cell_item", pos, item, orientation)
 	_undo_redo.add_undo_method(self, "_restore_cell_state", node, pos, prev)
 	_undo_redo.commit_action()
@@ -67,7 +67,7 @@ func fill(params: Dictionary) -> Dictionary:
 			for z in range(rz, rz + rd):
 				var pos := Vector3i(x, y, z)
 				snapshot.append({"pos": pos, "state": _capture_cell_state(node, pos)})
-	_undo_redo.create_action("MCP: GridMap fill %dx%dx%d" % [rw, rh, rd])
+	_undo_redo.create_action("DSH Godot: GridMap fill %dx%dx%d" % [rw, rh, rd])
 	## First callback targets the node so the action lands in the scene undo
 	## history (first-target routing); _apply_fill batches the rest of the
 	## region into a single history entry instead of one per cell.
@@ -92,7 +92,7 @@ func clear_layer(params: Dictionary) -> Dictionary:
 			"GridMap has %d cells, exceeds max %d for undoable clear"
 			% [used.size(), MAX_FILL_CELLS])
 	var snapshot := _capture_used_cells_snapshot(node)
-	_undo_redo.create_action("MCP: GridMap clear")
+	_undo_redo.create_action("DSH Godot: GridMap clear")
 	_undo_redo.add_do_method(node, "clear")
 	_undo_redo.add_undo_method(self, "_restore_cells_snapshot", node, snapshot)
 	_undo_redo.commit_action()

@@ -59,7 +59,7 @@ func control_draw_recipe(params: Dictionary) -> Dictionary:
 	var had_meta := node.has_meta("_ops")
 	var old_ops: Variant = node.get_meta("_ops") if had_meta else null
 
-	_undo_redo.create_action("MCP: Draw recipe on %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Draw recipe on %s" % node.name)
 	_undo_redo.add_do_method(node, "set_script", DRAW_RECIPE_SCRIPT)
 	_undo_redo.add_do_method(node, "set_meta", "_ops", coerced_ops)
 	_undo_redo.add_do_method(node, "queue_redraw")

@@ -833,7 +833,7 @@ static func wait_for_port_free(port: int, timeout_s: float) -> PortOccupancy:
 		if occupancy != PortOccupancy.OCCUPIED:
 			return occupancy
 		if Time.get_ticks_msec() >= deadline:
-			push_warning("MCP | port %d still in use after %.1fs — proceeding anyway" % [port, timeout_s])
+			push_warning("DSH Godot | port %d still in use after %.1fs — proceeding anyway" % [port, timeout_s])
 			return occupancy
 		OS.delay_msec(100)
 	return PortOccupancy.UNKNOWN
@@ -851,7 +851,7 @@ static func resolve_ws_port(configured: int, max_port: int, log_buffer = null) -
 	)
 	if resolved != configured:
 		var message := "WebSocket port %d is reserved by Windows; using %d" % [configured, resolved]
-		print("MCP | %s" % message)
+		print("DSH Godot | %s" % message)
 		if log_buffer != null:
 			log_buffer.log(message)
 	return resolved

@@ -476,7 +476,7 @@ func create_camera(params: Dictionary) -> Dictionary:
 		node.name = node_name
 
 	_undo_redo.create_action(
-		"MCP: Create %s '%s'" % [_VALID_TYPES[type_str], node.name],
+		"DSH Godot: Create %s '%s'" % [_VALID_TYPES[type_str], node.name],
 		UndoRedo.MERGE_DISABLE, scene_root
 	)
 	_undo_redo.add_do_method(parent, "add_child", node, true)
@@ -556,7 +556,7 @@ func configure(params: Dictionary) -> Dictionary:
 		old_values[prop_name] = node.get(prop_name)
 
 	_undo_redo.create_action(
-		"MCP: Configure camera %s" % node.name,
+		"DSH Godot: Configure camera %s" % node.name,
 		UndoRedo.MERGE_DISABLE, scene_root
 	)
 	for prop_name in coerced:
@@ -641,7 +641,7 @@ func set_limits_2d(params: Dictionary) -> Dictionary:
 			"No limits specified; provide at least one of left, right, top, bottom, smoothed"
 		)
 
-	_undo_redo.create_action("MCP: Set camera limits on %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Set camera limits on %s" % node.name)
 	for prop_name in applied:
 		_undo_redo.add_do_property(node, prop_name, applied[prop_name])
 		_undo_redo.add_undo_property(node, prop_name, old_values[prop_name])
@@ -739,7 +739,7 @@ func set_damping_2d(params: Dictionary) -> Dictionary:
 			"No damping params specified; provide at least one of position_speed, rotation_speed, drag_margins, drag_horizontal_enabled, drag_vertical_enabled"
 		)
 
-	_undo_redo.create_action("MCP: Set camera damping on %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Set camera damping on %s" % node.name)
 	for prop_name in applied:
 		_undo_redo.add_do_property(node, prop_name, applied[prop_name])
 		_undo_redo.add_undo_property(node, prop_name, old_values[prop_name])
@@ -810,7 +810,7 @@ func follow_2d(params: Dictionary) -> Dictionary:
 	var already_child: bool = old_parent == target
 	var reparented: bool = not already_child
 
-	_undo_redo.create_action("MCP: Camera follow %s" % target.name)
+	_undo_redo.create_action("DSH Godot: Camera follow %s" % target.name)
 	if reparented:
 		_undo_redo.add_do_method(old_parent, "remove_child", node)
 		_undo_redo.add_do_method(target, "add_child", node, true)
@@ -1020,7 +1020,7 @@ func apply_preset(params: Dictionary) -> Dictionary:
 		applied.append(prop_name)
 
 	_undo_redo.create_action(
-		"MCP: Apply camera preset %s" % preset_name,
+		"DSH Godot: Apply camera preset %s" % preset_name,
 		UndoRedo.MERGE_DISABLE, scene_root
 	)
 	_undo_redo.add_do_method(parent, "add_child", node, true)

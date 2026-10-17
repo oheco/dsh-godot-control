@@ -113,11 +113,10 @@ export class GodotBridge {
     entry.identity[rule[0]] = message.data[rule[0]]; this.emitState();
   }
   resolveSession(sessionId) {
-    const available = [...this.sessions.values()].filter(entry => entry.ready);
-    if (sessionId) { const entry = this.sessions.get(sessionId); if (!entry?.ready) throw new GodotError('SESSION_NOT_FOUND', 'The selected Godot editor is not connected.'); return entry; }
-    if (!available.length) throw new GodotError('GODOT_OFFLINE', 'No Godot editor is connected. Pair the Godot addon with DSH.');
-    if (available.length > 1) throw new GodotError('SESSION_REQUIRED', 'Multiple Godot editors are connected. Use godot_status and pass session_id.');
-    return available[0];
+    if (!sessionId) throw new GodotError('SESSION_REQUIRED', 'Use godot_status and explicitly pass session_id for every editor operation, even when only one editor is connected.');
+    const entry = this.sessions.get(sessionId);
+    if (!entry?.ready) throw new GodotError('SESSION_NOT_FOUND', 'The selected Godot editor is not connected. Use godot_status to refresh its session_id.');
+    return entry;
   }
   request(command, params = {}, { sessionId, signal, timeout = this.requestTimeout } = {}) {
     if (signal?.aborted) return Promise.reject(new GodotError('CANCELLED', 'Godot operation cancelled before dispatch.'));

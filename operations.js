@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { GodotError, object } from './protocol.js';
 export const COMMANDS = JSON.parse(await readFile(new URL('./commands.json', import.meta.url), 'utf8'));
 const byCommand = new Map(COMMANDS.map(command => [command.command, command]));
-const session = { type: 'string', description: 'Godot session_id from godot_status. Required when multiple editors are connected.' };
+const session = { type: 'string', required: true, description: 'Explicit Godot session_id from godot_status. Always required, including when only one editor is connected. Refresh the ID after editor restart or plugin reload.' };
 const params = { type: 'object', additionalProperties: true, description: 'Command parameters. Use godot_commands for parameter hints; node paths look like /Main/Player.' };
 const timeout = { type: 'integer', description: 'Operation timeout in milliseconds, from 500 to 120000; default 30000.' };
 const domain = (name, description, groups) => ({ name, description, parameters: { command: { type: 'string', required: true, enum: COMMANDS.filter(value => groups.includes(value.group)).map(value => value.command) }, params, session_id: session, timeout_ms: timeout } });
@@ -24,7 +24,7 @@ export function validateToolArgs(name, args) {
   for (const key of Object.keys(args)) if (!Object.hasOwn(spec.parameters, key)) throw new GodotError('INVALID_ARGUMENTS', `Unknown argument: ${key}`);
   for (const [key, rule] of Object.entries(spec.parameters)) {
     const value = args[key];
-    if (value === undefined) { if (rule.required) throw new GodotError('INVALID_ARGUMENTS', `Missing argument: ${key}`); continue; }
+    if (value === undefined) { if (rule.required) throw new GodotError(key === 'session_id' ? 'SESSION_REQUIRED' : 'INVALID_ARGUMENTS', key === 'session_id' ? 'Use godot_status and explicitly pass session_id for every editor operation.' : `Missing argument: ${key}`); continue; }
     const valid = rule.type === 'integer' ? Number.isInteger(value) : rule.type === 'object' ? object(value) : typeof value === rule.type;
     if (!valid || (rule.enum && !rule.enum.includes(value))) throw new GodotError('INVALID_ARGUMENTS', `Invalid argument: ${key}`);
   }

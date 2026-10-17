@@ -927,7 +927,7 @@ func request_game_screenshot(
 	timeout_sec: float = DEFAULT_TIMEOUT_SEC,
 ) -> void:
 	if request_id.is_empty():
-		push_warning("MCP debugger: screenshot request missing request_id")
+		push_warning("DSH Godot | debugger: screenshot request missing request_id")
 		return
 
 	var tree := Engine.get_main_loop() as SceneTree
@@ -1022,7 +1022,7 @@ func _first_active_session() -> EditorDebuggerSession:
 
 func _on_screenshot_response(data: Array) -> void:
 	if data.size() < 6:
-		push_warning("MCP debugger: malformed screenshot response (expected 6 fields, got %d)" % data.size())
+		push_warning("DSH Godot | debugger: malformed screenshot response (expected 6 fields, got %d)" % data.size())
 		return
 	var request_id: String = data[0]
 	var pending = _pending.get(request_id)
@@ -1163,7 +1163,7 @@ func request_game_eval(
 	timeout_sec: float = 10.0,
 ) -> void:
 	if request_id.is_empty():
-		push_warning("MCP debugger: eval request missing request_id")
+		push_warning("DSH Godot | debugger: eval request missing request_id")
 		return
 
 	var tree := Engine.get_main_loop() as SceneTree
@@ -1300,7 +1300,7 @@ func _on_eval_liveness_timeout(request_id: String) -> void:
 
 func _on_eval_liveness_response(data: Array) -> void:
 	if data.size() < 2:
-		push_warning("MCP debugger: malformed eval liveness response")
+		push_warning("DSH Godot | debugger: malformed eval liveness response")
 		return
 	var request_id := str(data[0])
 	var pending_entry = _pending.get(request_id)
@@ -1436,7 +1436,7 @@ func _on_eval_timeout(request_id: String, timeout_sec: float) -> void:
 
 func _on_eval_response(data: Array) -> void:
 	if data.size() < 2:
-		push_warning("MCP debugger: malformed eval response (expected 2 fields, got %d)" % data.size())
+		push_warning("DSH Godot | debugger: malformed eval response (expected 2 fields, got %d)" % data.size())
 		return
 	var request_id: String = data[0]
 	var pending_entry = _pending.get(request_id)
@@ -1647,7 +1647,7 @@ func request_game_debug_control(
 	timeout_sec: float = GAME_DEBUG_CONTROL_TIMEOUT_SEC,
 ) -> void:
 	if request_id.is_empty():
-		push_warning("MCP debugger: game debug control missing request_id")
+		push_warning("DSH Godot | debugger: game debug control missing request_id")
 		return
 	## The dispatcher registers the deferred request only after the handler returns.
 	## Start the entire guard/control flow deferred so even fast failures cannot race
@@ -1727,7 +1727,7 @@ func _begin_game_debug_control(
 
 func _on_debug_status_response(data: Array) -> void:
 	if data.size() < 2 or not (data[1] is Dictionary):
-		push_warning("MCP debugger: malformed debug_status response")
+		push_warning("DSH Godot | debugger: malformed debug_status response")
 		return
 	var request_id := str(data[0])
 	var pending_entry: Dictionary = _pending.get(request_id, {})
@@ -1958,7 +1958,7 @@ func request_game_command(
 	timeout_sec: float = 10.0,
 ) -> void:
 	if request_id.is_empty():
-		push_warning("MCP debugger: game command request missing request_id")
+		push_warning("DSH Godot | debugger: game command request missing request_id")
 		return
 
 	var tree := Engine.get_main_loop() as SceneTree
@@ -2049,7 +2049,7 @@ func _send_game_command(
 
 func _on_game_command_response(data: Array) -> void:
 	if data.size() < 2:
-		push_warning("MCP debugger: malformed game_command response (expected 2 fields, got %d)" % data.size())
+		push_warning("DSH Godot | debugger: malformed game_command response (expected 2 fields, got %d)" % data.size())
 		return
 	var request_id: String = data[0]
 	var pending_entry = _pending.get(request_id)

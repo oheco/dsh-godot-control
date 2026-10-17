@@ -71,7 +71,7 @@ func create_player(params: Dictionary) -> Dictionary:
 	var library := AnimationLibrary.new()
 	player.add_animation_library("", library)
 
-	_undo_redo.create_action("MCP: Create AnimationPlayer %s" % player.name)
+	_undo_redo.create_action("DSH Godot: Create AnimationPlayer %s" % player.name)
 	_undo_redo.add_do_method(parent, "add_child", player, true)
 	_undo_redo.add_do_method(player, "set_owner", scene_root)
 	_undo_redo.add_do_reference(player)
@@ -134,7 +134,7 @@ func create_animation(params: Dictionary) -> Dictionary:
 	anim.length = length
 	anim.loop_mode = _LOOP_MODES[loop_mode_str]
 
-	_commit_animation_add("MCP: Create animation %s" % anim_name,
+	_commit_animation_add("DSH Godot: Create animation %s" % anim_name,
 		player, library, created_library, anim_name, anim, old_anim,
 		created_player, player_parent)
 
@@ -185,7 +185,7 @@ func delete_animation(params: Dictionary) -> Dictionary:
 	if slash >= 0:
 		clip_key = anim_name.substr(slash + 1)
 
-	_undo_redo.create_action("MCP: Delete animation %s" % anim_name)
+	_undo_redo.create_action("DSH Godot: Delete animation %s" % anim_name)
 	_undo_redo.add_do_method(library, "remove_animation", clip_key)
 	_undo_redo.add_undo_method(library, "add_animation", clip_key, old_anim)
 	_undo_redo.add_do_reference(old_anim)  # prevent GC so undo→redo works
@@ -262,7 +262,7 @@ func add_property_track(params: Dictionary) -> Dictionary:
 			"transition": kf.get("transition", "linear"),
 		})
 
-	_create_scene_pinned_action("MCP: Add property track %s to %s" % [track_path, anim_name])
+	_create_scene_pinned_action("DSH Godot: Add property track %s to %s" % [track_path, anim_name])
 	_undo_redo.add_do_method(self, "_do_add_property_track", anim, track_path, interp_str, coerced_keyframes)
 	# Undo locates the track by (path, type) at undo time rather than caching
 	# an index captured at do time. Cached indices go stale if any other track
@@ -348,7 +348,7 @@ func add_method_track(params: Dictionary) -> Dictionary:
 		return anim_resolved
 	var anim: Animation = anim_resolved.animation
 
-	_create_scene_pinned_action("MCP: Add method track %s to %s" % [target_path, anim_name])
+	_create_scene_pinned_action("DSH Godot: Add method track %s to %s" % [target_path, anim_name])
 	_undo_redo.add_do_method(self, "_do_add_method_track", anim, target_path, keyframes)
 	# Undo locates the track by (path, type) at undo time — see add_property_track.
 	_undo_redo.add_undo_method(self, "_undo_remove_track_by_path", anim, target_path, Animation.TYPE_METHOD)
@@ -408,7 +408,7 @@ func set_autoplay(params: Dictionary) -> Dictionary:
 
 	var old_autoplay: String = player.autoplay
 
-	_undo_redo.create_action("MCP: Set autoplay %s on %s" % [anim_name, player_path])
+	_undo_redo.create_action("DSH Godot: Set autoplay %s on %s" % [anim_name, player_path])
 	_undo_redo.add_do_property(player, "autoplay", anim_name)
 	_undo_redo.add_undo_property(player, "autoplay", old_autoplay)
 	_undo_redo.commit_action()
@@ -601,7 +601,7 @@ func create_simple(params: Dictionary) -> Dictionary:
 
 	# One atomic undo action — bundles player creation (if any), library
 	# creation (if any), and the animation add. A single Ctrl-Z rolls back all.
-	_commit_animation_add("MCP: Create animation %s (%d tracks)" % [anim_name, anim.get_track_count()],
+	_commit_animation_add("DSH Godot: Create animation %s (%d tracks)" % [anim_name, anim.get_track_count()],
 		player, library, created_library, anim_name, anim, old_anim,
 		created_player, player_parent)
 

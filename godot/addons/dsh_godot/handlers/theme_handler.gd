@@ -210,7 +210,7 @@ func _set_scalar(
 			_clear_scalar(theme_path, clearer, name, class_name_param)
 		return _save_failure(theme_path, save_err)
 
-	_undo_redo.create_action("MCP: Theme set %s %s/%s" % [kind, class_name_param, name])
+	_undo_redo.create_action("DSH Godot: Theme set %s %s/%s" % [kind, class_name_param, name])
 	_undo_redo.add_do_method(self, "_apply_scalar", theme_path, setter, name, class_name_param, parsed)
 	if had_before:
 		_undo_redo.add_undo_method(self, "_apply_scalar", theme_path, setter, name, class_name_param, before_value)
@@ -236,7 +236,7 @@ func _set_scalar(
 func _apply_scalar(theme_path: String, setter: Callable, name: String, class_name_param: String, value: Variant) -> int:
 	var theme: Theme = ResourceLoader.load(theme_path)
 	if theme == null:
-		push_warning("MCP: Failed to load theme for undo/redo: %s" % theme_path)
+		push_warning("DSH Godot: Failed to load theme for undo/redo: %s" % theme_path)
 		return ERR_FILE_CANT_OPEN
 	setter.call(theme, name, class_name_param, value)
 	return DshGodotResourceIO.guarded_save(theme, theme_path, _connection)
@@ -245,7 +245,7 @@ func _apply_scalar(theme_path: String, setter: Callable, name: String, class_nam
 func _clear_scalar(theme_path: String, clearer: Callable, name: String, class_name_param: String) -> int:
 	var theme: Theme = ResourceLoader.load(theme_path)
 	if theme == null:
-		push_warning("MCP: Failed to load theme for undo/redo: %s" % theme_path)
+		push_warning("DSH Godot: Failed to load theme for undo/redo: %s" % theme_path)
 		return ERR_FILE_CANT_OPEN
 	clearer.call(theme, name, class_name_param)
 	return DshGodotResourceIO.guarded_save(theme, theme_path, _connection)
@@ -457,7 +457,7 @@ func _commit_stylebox(
 	theme_path: String, name: String, class_name_param: String,
 	sb: StyleBox, before_sb: StyleBox, had_before: bool
 ) -> void:
-	_undo_redo.create_action("MCP: Theme set stylebox %s/%s" % [class_name_param, name])
+	_undo_redo.create_action("DSH Godot: Theme set stylebox %s/%s" % [class_name_param, name])
 	_undo_redo.add_do_method(self, "_apply_stylebox", theme_path, name, class_name_param, sb)
 	if had_before:
 		_undo_redo.add_undo_method(self, "_apply_stylebox", theme_path, name, class_name_param, before_sb)
@@ -644,7 +644,7 @@ func _set_resource_slot(
 			_clear_slot(theme_path, kind, name, class_name_param)
 		return _save_failure(theme_path, save_err)
 
-	_undo_redo.create_action("MCP: Theme set %s %s/%s" % [kind, class_name_param, name])
+	_undo_redo.create_action("DSH Godot: Theme set %s %s/%s" % [kind, class_name_param, name])
 	_undo_redo.add_do_method(self, "_apply_slot", theme_path, kind, name, class_name_param, loaded)
 	if had_before:
 		_undo_redo.add_undo_method(self, "_apply_slot", theme_path, kind, name, class_name_param, before_value)
@@ -723,7 +723,7 @@ func stylebox_override(params: Dictionary) -> Dictionary:
 
 	var had_override: bool = control.has_theme_stylebox_override(slot)
 	var scene_root: Node = resolved.scene_root
-	_undo_redo.create_action("MCP: Stylebox override %s on %s" % [slot, node.name],
+	_undo_redo.create_action("DSH Godot: Stylebox override %s on %s" % [slot, node.name],
 		UndoRedo.MERGE_DISABLE, scene_root)
 	_undo_redo.add_do_method(self, "_apply_node_stylebox", control, slot, patched)
 	if had_override:
@@ -845,7 +845,7 @@ static func _apply_sides(sb: Object, sides_dict: Variant, dict_name: String,
 func _apply_stylebox(theme_path: String, name: String, class_name_param: String, sb: StyleBox) -> int:
 	var theme: Theme = ResourceLoader.load(theme_path)
 	if theme == null:
-		push_warning("MCP: Failed to load theme for undo/redo: %s" % theme_path)
+		push_warning("DSH Godot: Failed to load theme for undo/redo: %s" % theme_path)
 		return ERR_FILE_CANT_OPEN
 	theme.set_stylebox(name, class_name_param, sb)
 	return DshGodotResourceIO.guarded_save(theme, theme_path, _connection)
@@ -854,7 +854,7 @@ func _apply_stylebox(theme_path: String, name: String, class_name_param: String,
 func _clear_stylebox(theme_path: String, name: String, class_name_param: String) -> int:
 	var theme: Theme = ResourceLoader.load(theme_path)
 	if theme == null:
-		push_warning("MCP: Failed to load theme for undo/redo: %s" % theme_path)
+		push_warning("DSH Godot: Failed to load theme for undo/redo: %s" % theme_path)
 		return ERR_FILE_CANT_OPEN
 	theme.clear_stylebox(name, class_name_param)
 	return DshGodotResourceIO.guarded_save(theme, theme_path, _connection)
@@ -893,7 +893,7 @@ func apply_theme(params: Dictionary) -> Dictionary:
 		)
 
 	var before_theme: Theme = node.theme
-	_undo_redo.create_action("MCP: Apply theme to %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Apply theme to %s" % node.name)
 	_undo_redo.add_do_property(node, "theme", theme)
 	_undo_redo.add_undo_property(node, "theme", before_theme)
 	_undo_redo.commit_action()
@@ -976,7 +976,7 @@ static func _serialize_value(value: Variant) -> Variant:
 func _apply_slot(theme_path: String, kind: String, name: String, class_name_param: String, value: Variant) -> int:
 	var theme: Theme = ResourceLoader.load(theme_path)
 	if theme == null:
-		push_warning("MCP: Failed to load theme for undo/redo: %s" % theme_path)
+		push_warning("DSH Godot: Failed to load theme for undo/redo: %s" % theme_path)
 		return ERR_FILE_CANT_OPEN
 	match kind:
 		"font":
@@ -989,7 +989,7 @@ func _apply_slot(theme_path: String, kind: String, name: String, class_name_para
 func _clear_slot(theme_path: String, kind: String, name: String, class_name_param: String) -> int:
 	var theme: Theme = ResourceLoader.load(theme_path)
 	if theme == null:
-		push_warning("MCP: Failed to load theme for undo/redo: %s" % theme_path)
+		push_warning("DSH Godot: Failed to load theme for undo/redo: %s" % theme_path)
 		return ERR_FILE_CANT_OPEN
 	match kind:
 		"font":

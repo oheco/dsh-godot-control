@@ -74,7 +74,7 @@ func create(params: Dictionary) -> Dictionary:
 	node.name = node_name
 	node.operation = OPERATIONS[operation]
 
-	_undo_redo.create_action("MCP: Create %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Create %s" % node.name)
 	_undo_redo.add_do_method(parent, "add_child", node, true)
 	_undo_redo.add_do_method(node, "set_owner", scene_root)
 	_undo_redo.add_do_reference(node)
@@ -111,7 +111,7 @@ func set_operation(params: Dictionary) -> Dictionary:
 	var next: int = OPERATIONS[operation]
 	## Target the node in both callbacks so the action lands in the scene
 	## undo history (first-target routing); `set` exists on every Object.
-	_undo_redo.create_action("MCP: CSG set_operation")
+	_undo_redo.create_action("DSH Godot: CSG set_operation")
 	_undo_redo.add_do_method(shape, "set", "operation", next)
 	_undo_redo.add_undo_method(shape, "set", "operation", prev)
 	_undo_redo.commit_action()

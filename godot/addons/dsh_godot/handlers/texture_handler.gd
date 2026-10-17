@@ -180,7 +180,7 @@ func _assign_texture(tex: Resource, sub_resources: Array, node_path: String, pro
 
 	var old_value = node.get(property)
 
-	_undo_redo.create_action("MCP: Create %s for %s.%s" % [label, node.name, property])
+	_undo_redo.create_action("DSH Godot: Create %s for %s.%s" % [label, node.name, property])
 	_undo_redo.add_do_property(node, property, tex)
 	_undo_redo.add_undo_property(node, property, old_value)
 	_undo_redo.add_do_reference(tex)

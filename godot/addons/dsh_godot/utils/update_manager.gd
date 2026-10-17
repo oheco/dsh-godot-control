@@ -88,7 +88,7 @@ func check_for_updates() -> void:
 	_qualification = _qualification_from_environment()
 	if bool(_qualification.get("invalid", false)):
 		_qualification.clear()
-		push_error("MCP | invalid private qualification release capability")
+		push_error("DSH Godot | invalid private qualification release capability")
 		return
 	if ClientConfigurator.is_dev_checkout():
 		return
@@ -523,7 +523,7 @@ func _fail_download(reason: String) -> void:
 	_queue.clear()
 	_qualification.clear()
 	discard_downloads()
-	push_error("MCP | v4 update preparation failed: %s" % reason)
+	push_error("DSH Godot | v4 update preparation failed: %s" % reason)
 	## The click-time lock and any quiesced client work are the plugin's to
 	## release, and it only does so when it hears the install is over.
 	install_state_changed.emit({

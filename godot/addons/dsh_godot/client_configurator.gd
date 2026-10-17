@@ -1745,7 +1745,7 @@ static func get_server_command(trace: Callable = Callable()) -> Array[String]:
 	if mode_override() != "user":
 		var venv_python := _cached_venv_python()
 		if not venv_python.is_empty():
-			print("MCP | using dev venv: %s" % venv_python)
+			print("DSH Godot | using dev venv: %s" % venv_python)
 			return [venv_python, "-m", "dsh_godot"]
 
 	var uvx := find_uvx(trace)
@@ -1766,11 +1766,11 @@ static func get_server_command(trace: Callable = Callable()) -> Array[String]:
 		## every spawn. See issue #133.
 		if pypi_version != version:
 			print(
-				"MCP | using uvx (godot-ai==%s; local plugin %s not on PyPI)"
+				"DSH Godot | using uvx (godot-ai==%s; local plugin %s not on PyPI)"
 				% [pypi_version, version]
 			)
 		else:
-			print("MCP | using uvx (godot-ai==%s)" % pypi_version)
+			print("DSH Godot | using uvx (godot-ai==%s)" % pypi_version)
 		var cmd: Array[String] = [uvx]
 		cmd.append_array(UvResolution.args())
 		cmd.append_array(["--from", "godot-ai==%s" % pypi_version, "godot-ai"])
@@ -1778,10 +1778,10 @@ static func get_server_command(trace: Callable = Callable()) -> Array[String]:
 
 	var system_cmd := _find_system_install(trace)
 	if not system_cmd.is_empty():
-		print("MCP | using system install: %s" % system_cmd)
+		print("DSH Godot | using system install: %s" % system_cmd)
 		return [system_cmd]
 
-	push_warning("MCP | no server found — install uv or run: pip install godot-ai")
+	push_warning("DSH Godot | no server found — install uv or run: pip install godot-ai")
 	return []
 
 

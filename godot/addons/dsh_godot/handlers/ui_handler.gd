@@ -105,7 +105,7 @@ func set_anchor_preset(params: Dictionary) -> Dictionary:
 	for prop in _ANCHOR_OFFSET_PROPS:
 		before[prop] = control.get(prop)
 
-	_undo_redo.create_action("MCP: Set %s anchor preset %s" % [control.name, preset_name])
+	_undo_redo.create_action("DSH Godot: Set %s anchor preset %s" % [control.name, preset_name])
 	_undo_redo.add_do_method(
 		control, "set_anchors_and_offsets_preset", preset_value, resize_mode_value, margin
 	)
@@ -188,7 +188,7 @@ func set_text(params: Dictionary) -> Dictionary:
 
 	var old_value: String = node.get("text")
 
-	_undo_redo.create_action("MCP: Set %s text" % node.name)
+	_undo_redo.create_action("DSH Godot: Set %s text" % node.name)
 	_undo_redo.add_do_property(node, "text", text_value)
 	_undo_redo.add_undo_property(node, "text", old_value)
 	_undo_redo.commit_action()
@@ -241,7 +241,7 @@ func set_richtext(params: Dictionary) -> Dictionary:
 	var old_text: String = label.text
 	var old_bbcode: bool = label.bbcode_enabled
 
-	_undo_redo.create_action("MCP: Set rich text on %s" % node.name)
+	_undo_redo.create_action("DSH Godot: Set rich text on %s" % node.name)
 	## bbcode_enabled first: RichTextLabel parses `text` as BBcode only when
 	## the flag is already set.
 	_undo_redo.add_do_property(node, "bbcode_enabled", bbcode)
@@ -301,7 +301,7 @@ func build_layout(params: Dictionary) -> Dictionary:
 	var root_node: Node = built.node
 	var created: Array[Node] = built.created
 
-	_undo_redo.create_action("MCP: Build UI layout (%d nodes)" % created.size())
+	_undo_redo.create_action("DSH Godot: Build UI layout (%d nodes)" % created.size())
 	_undo_redo.add_do_method(parent, "add_child", root_node, true)
 	_undo_redo.add_do_method(root_node, "set_owner", scene_root)
 	for n in created:

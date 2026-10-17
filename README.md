@@ -14,7 +14,7 @@
 | 上游提交 | [b82b5c519b1b17228f70d8effce1626f391bd1dd](https://github.com/hi-godot/godot-ai/commit/b82b5c519b1b17228f70d8effce1626f391bd1dd) |
 | WebSocket 协议 | Godot AI 协议 2 |
 | 上游源码与许可证 | [tpr/godot-ai/](tpr/godot-ai/) |
-| 本插件版本与分支 | 0.1.1，`ohos/0.1.0` |
+| 本插件版本与分支 | 0.1.2，`ohos/0.1.0` |
 
 Godot 侧复用上游的命令分发器、编辑器 handler 与运行时辅助代码，启动入口改为连接 DSH，并使用独立的 `dsh_godot` 目录和类名。DSH 侧是本仓库实现的原生插件，负责连接服务、认证、会话路由和工具注册。原版 Python 后端的启动、MCP 客户端配置和自动凭据发现流程由本版的 DSH 配对流程替代。
 
@@ -38,7 +38,7 @@ git -c http.proxy=socks5h://127.0.0.1:10808 clone --branch ohos/0.1.0 --single-b
 
 打开 DSH 插件管理页，选择“从本地目录安装”，选择刚克隆的 `dsh-godot-control` 仓库根目录，也就是 [package.json](package.json) 所在目录，然后启用 **@oheco/dsh-godot-control**。
 
-目录安装可能持续引用原目录，请保留整个仓库目录。DSH 插件详情中会出现“Godot 配对”面板。
+目录安装可能持续引用原目录，请保留整个仓库目录。DSH 插件详情中会出现“Godot 配对”面板。更新仓库后刷新 GUI；如果 `godot_status.server_version` 仍是旧版本，需要重启 DSH Host 以加载新的后端模块，仅开关插件不一定会清除模块缓存。Godot 项目中的 addon 仍需单独同步并重载。
 
 ### 3. 安装 Godot 编辑器插件
 
@@ -73,7 +73,7 @@ my-game/
 
 1. 在 DSH 的“Godot 配对”面板查看连接地址，复制令牌。端口默认为 `9500`；令牌仅在点击显示或复制时读取。
 2. 在 Godot 的 **DSH Godot** 面板填写相同端口与令牌，点击“保存配对并连接”。
-3. 回到 DSH 刷新状态，确认显示该 Godot 项目路径。也可以让 DSH 调用 `godot_status` 查看连接状态，再调用 `godot_scene_tree` 读取当前场景。
+3. 回到 DSH 的配对面板，确认列表显示项目路径、PID、会话 ID 和状态。列表每 2 秒自动更新，也可手动刷新。Godot 面板显示本实例的会话 ID、PID、连接地址，连接异常时显示原因和重试倒计时。也可以让 DSH 调用 `godot_status` 查看连接状态，再调用 `godot_scene_tree` 读取当前场景。
 
 Godot 端配对保存在当前项目的 `.godot/dsh-godot-control/connection.cfg`，每个项目可以设置不同的服务端口和 token。插件每秒检查配置内容变化，外部工具或 AI 写入后会自动重新连接，无需重启编辑器。项目配置不强制要求 POSIX 权限，适用于鸿蒙共享目录。删除整个 `.godot` 后需要重新写入配对。
 
@@ -105,13 +105,20 @@ token="<DSH 配对 token>"
 | `godot_editor` | 编辑器状态、日志、截图和调试 |
 | `godot_command` | 资源、材质、动画、UI、物理、音频等其他命令 |
 
-命令列表由上游编辑器注册表生成，共 161 项。使用插件命令名，例如 `create_node`，参数位于 `params`。`godot_commands` 提供字段提示；具体命令的完整语义沿用上游 GDScript handler。多个编辑器同时连接时，调用必须传入 `godot_status` 返回的 `session_id`。
+命令列表由上游编辑器注册表生成，共 161 项。使用插件命令名，例如 `create_node`，参数位于 `params`。`godot_commands` 提供字段提示；具体命令的完整语义沿用上游 GDScript handler。所有访问编辑器的调用都必须传入 `godot_status` 返回的 `session_id`，即使只有一个编辑器连接。只有连接列表查询 `godot_status` 和本地命令目录查询 `godot_commands` 不需要该参数。
 
-例如调用 `godot_node`：
+同一个 DSH 服务默认最多接收 32 个连接。不同项目、同一项目的多个编辑器均使用独立的随机会话 ID；它们共用 DSH 的端口和 token，无需为每个编辑器分配端口。可在配对列表中复制会话 ID，对 DSH 说“使用会话 `<session_id>` 操作这个项目”。关闭其中一个编辑器不影响其他连接；重启编辑器或重载插件后，应重新读取列表中的会话 ID。
+
+当前对话不保存默认编辑器绑定，也不自动选择唯一连接。省略 `session_id` 一律返回 `SESSION_REQUIRED`；目标离线或会话 ID 已失效时返回 `SESSION_NOT_FOUND`，不会回退到其他编辑器。先读取连接列表并选定目标，再显式携带该 ID 执行每次操作。
+
+插件自身日志统一使用 `DSH Godot |` 标识，节点等操作的撤销记录使用 `DSH Godot:`。启动与认证日志附带本实例的会话 ID 和 PID，方便对应配对列表。
+
+例如调用 `godot_node`（会话 ID 替换为列表中的真实值）：
 
 ```json
 {
   "command": "set_property",
+  "session_id": "my-game@0123456789abcdef",
   "params": {
     "path": "/Main/Player",
     "property": "position",

@@ -72,7 +72,7 @@ func _enter_tree() -> void:
 	_build_dock(pairing)
 	_ensure_game_helper_autoload()
 	set_process(true)
-	print("DSH Godot | plugin loaded; no Python or MCP backend")
+	print("DSH Godot | plugin loaded (session %s, PID %d)" % [_connection.get_session_id(), OS.get_process_id()])
 
 func _register_handlers() -> void:
 	# @REGISTRATION@
@@ -183,7 +183,29 @@ func _process(delta: float) -> void:
 		_refresh_elapsed = 0.0
 		_refresh_pairing()
 		var status: Dictionary = _connection.get_transport_status()
-		_status_label.text = _label("连接状态：", "Connection: ") + str(status.get("phase", "waiting"))
+		_status_label.text = _connection_status_text(status)
+
+func _connection_status_text(status: Dictionary) -> String:
+	var phases := {
+		"connected": _label("已连接", "Connected"),
+		"connecting": _label("正在连接", "Connecting"),
+		"authenticating": _label("正在认证", "Authenticating"),
+		"retrying": _label("等待重试", "Waiting to retry"),
+		"closing": _label("正在断开", "Disconnecting"),
+		"blocked": _label("需要配对", "Pairing required"),
+		"waiting": _label("等待连接", "Waiting"),
+	}
+	var phase := str(status.get("phase", "waiting"))
+	var lines: Array[String] = [_label("DSH 连接：", "DSH connection: ") + str(phases.get(phase, phase))]
+	lines.append(str(status.get("endpoint", "")))
+	lines.append("PID: %d" % int(status.get("editor_pid", 0)))
+	lines.append("Session ID: %s" % str(status.get("session_id", "")))
+	if status.has("retry_in_sec"):
+		lines.append(_label("下次重试：%d 秒", "Retry in %d s") % int(ceil(float(status.retry_in_sec))))
+	var reason := str(status.get("reason", ""))
+	if not reason.is_empty():
+		lines.append(_label("原因：", "Reason: ") + reason)
+	return "\n".join(lines)
 
 func _ensure_game_helper_autoload() -> void:
 	var key := "autoload/" + GAME_HELPER_AUTOLOAD_NAME

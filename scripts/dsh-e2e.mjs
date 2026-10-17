@@ -249,7 +249,7 @@ function verifyTranscript(events) {
     const result = matches[0]; assert.ok(result.seq > call.seq);
     const args = JSON.parse(call.data.arguments);
     if (call.data.name !== 'godot_status') {
-      assert.ok(args.session_id === godotSessionId || args.session_id === undefined && report.existing_godot_session_count === 0, 'Model must select the owned Godot editor.');
+      assert.equal(args.session_id, godotSessionId, 'Every editor call must explicitly select the owned Godot editor.');
     }
     return { call, result, args, value: resultValue(result) };
   });

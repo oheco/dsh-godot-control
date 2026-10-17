@@ -536,13 +536,13 @@ static func _read_file_text(path: String, allow_comments: bool = false) -> Dicti
 		var stripped := _strip_jsonc(parse_copy)
 		if not stripped.get("ok", false):
 			var strip_msg := str(stripped.get("error", "invalid JSONC"))
-			push_warning("MCP | %s in %s" % [strip_msg, path])
+			push_warning("DSH Godot | %s in %s" % [strip_msg, path])
 			return {"exists": true, "ok": false, "error": strip_msg, "original_text": content}
 		parse_copy = str(stripped.get("text", ""))
 	var json := JSON.new()
 	if json.parse(parse_copy) != OK:
 		var msg := "JSON parse error on line %d: %s" % [json.get_error_line(), json.get_error_message()]
-		push_warning("MCP | %s in %s" % [msg, path])
+		push_warning("DSH Godot | %s in %s" % [msg, path])
 		return {"exists": true, "ok": false, "error": msg, "original_text": content}
 	if not (json.data is Dictionary):
 		return {"exists": true, "ok": false, "error": "top-level value is %s, expected object" % type_string(typeof(json.data)), "original_text": content}

@@ -5,8 +5,10 @@ import { randomBytes } from 'node:crypto';
 import { GodotBridge } from '../server.js';
 import { WebSocket } from '../tpr/ws/wrapper.mjs';
 import { clientProof, parseMessage } from '../protocol.js';
-import { createOperations } from '../operations.js';
-const token = 'a'.repeat(64);
+import { createOperations, TOOL_SPECS } from '../operations.js';
+import { toolDefinition } from '../main.js';
+const token = 'a'.repeat(64), fixtureSessionId = 'fixture@0123456789abcdef';
+const fixtureRoute = { sessionId: fixtureSessionId };
 async function connect(bridge, { secret = token, sessionId = 'fixture@0123456789abcdef', readiness = 'ready' } = {}) {
   const peer = new WebSocket(`ws://127.0.0.1:${bridge.port}`), nonce = randomBytes(32).toString('hex');
   const ready = new Promise((resolve, reject) => {
@@ -34,9 +36,37 @@ test('strict JSON rejects duplicate escaped keys and permits nested repeated nam
 test('authenticated requests preserve IDs and statuses omit secrets', async t => {
   const bridge = await setup(t), peer = await connect(bridge);
   peer.on('message', raw => { const message = JSON.parse(raw); if (message.command) peer.send(JSON.stringify({ request_id: message.request_id, status: 'ok', data: { command: message.command }, readiness: 'ready' })); });
-  assert.deepEqual(await bridge.request('get_editor_state'), { command: 'get_editor_state' });
+  assert.deepEqual(await bridge.request('get_editor_state', {}, fixtureRoute), { command: 'get_editor_state' });
   assert.equal(bridge.status().sessions[0].session_id, 'fixture@0123456789abcdef');
   assert.ok(!JSON.stringify(bridge.status()).includes(token)); assert.equal(bridge.pending.size, 0);
+});
+test('every editor tool requires an explicit session with zero, one or multiple editors', async t => {
+  const bridge = await setup(t), execute = createOperations(bridge), received = [];
+  const editorTools = TOOL_SPECS.filter(spec => !['godot_status', 'godot_commands'].includes(spec.name));
+  const rejectImplicit = async () => {
+    assert.throws(() => bridge.resolveSession(), { code: 'SESSION_REQUIRED' });
+    await assert.rejects(bridge.request('get_scene_tree'), { code: 'SESSION_REQUIRED' });
+    for (const spec of editorTools) {
+      const args = spec.parameters.command ? { command: spec.parameters.command.enum[0] } : {};
+      assert.ok(toolDefinition(spec).parameters.required.includes('session_id'), spec.name);
+      await assert.rejects(execute(spec.name, args), { code: 'SESSION_REQUIRED' });
+      await assert.rejects(execute(spec.name, { ...args, session_id: '' }), { code: 'INVALID_ARGUMENTS' });
+      await assert.rejects(execute(spec.name, { ...args, session_id: 'missing@0123456789abcdef' }), { code: 'SESSION_NOT_FOUND' });
+    }
+    assert.equal(bridge.pending.size, 0);
+    assert.deepEqual(received, [], 'Rejected calls must never dispatch to any editor');
+    assert.ok(Array.isArray((await execute('godot_status')).sessions));
+    assert.ok((await execute('godot_commands')).total_count > 0);
+  };
+  await rejectImplicit();
+  const first = await connect(bridge);
+  first.on('message', raw => { if (JSON.parse(raw).command) received.push('first'); });
+  await rejectImplicit();
+  const second = await connect(bridge, { sessionId: 'second@0123456789abcdef' });
+  second.on('message', raw => { if (JSON.parse(raw).command) received.push('second'); });
+  await rejectImplicit();
+  const disconnected = once(second, 'close'); second.close(); await disconnected;
+  await rejectImplicit();
 });
 test('wrong tokens, protocol downgrade and duplicate sessions fail closed', async t => {
   const bridge = await setup(t);
@@ -58,10 +88,10 @@ test('multiple editors require explicit routing and cannot settle each other\'s 
 });
 test('disconnect and cancellation settle pending work without replay', async t => {
   const bridge = await setup(t), peer = await connect(bridge);
-  const received = once(peer, 'message'), pending = bridge.request('create_node'); await received;
+  const received = once(peer, 'message'), pending = bridge.request('create_node', {}, fixtureRoute); await received;
   peer.close(); await assert.rejects(pending, { code: 'CONNECTION_LOST' }); assert.equal(bridge.pending.size, 0);
   const replacement = await connect(bridge), controller = new AbortController();
-  const request = bridge.request('create_node', {}, { signal: controller.signal }); controller.abort();
+  const request = bridge.request('create_node', {}, { ...fixtureRoute, signal: controller.signal }); controller.abort();
   await assert.rejects(request, { code: 'CANCELLED' }); assert.equal(bridge.pending.size, 0);
   replacement.close();
 });
@@ -69,13 +99,13 @@ test('write tools probe live readiness and refuse importing without dispatching 
   const bridge = await setup(t), peer = await connect(bridge), sent = [];
   peer.on('message', raw => { const message = JSON.parse(raw); if (!message.command) return; sent.push(message.command); peer.send(JSON.stringify({ request_id: message.request_id, status: 'ok', data: { readiness: 'importing' }, readiness: 'importing' })); });
   const execute = createOperations(bridge);
-  await assert.rejects(execute('godot_node', { command: 'create_node', params: { type: 'Node3D' } }), { code: 'EDITOR_NOT_READY' });
+  await assert.rejects(execute('godot_node', { session_id: fixtureSessionId, command: 'create_node', params: { type: 'Node3D' } }), { code: 'EDITOR_NOT_READY' });
   assert.deepEqual(sent, ['get_editor_state']);
   await assert.rejects(execute('godot_command', { command: 'configure_client' }), { code: 'INVALID_ARGUMENTS' });
-  await assert.rejects(execute('godot_node', { command: 'create_node', params: { value: Infinity } }), { code: 'INVALID_ARGUMENTS' });
+  await assert.rejects(execute('godot_node', { session_id: fixtureSessionId, command: 'create_node', params: { value: Infinity } }), { code: 'INVALID_ARGUMENTS' });
 });
 test('malformed response fails the reserved request immediately', async t => {
   const bridge = await setup(t), peer = await connect(bridge);
   peer.on('message', raw => { const message = JSON.parse(raw); if (message.command) peer.send(JSON.stringify({ request_id: message.request_id, status: 'ok', data: [], readiness: 'ready' })); });
-  await assert.rejects(bridge.request('get_scene_tree'), { code: 'INVALID_RESPONSE' }); assert.equal(bridge.pending.size, 0);
+  await assert.rejects(bridge.request('get_scene_tree', {}, fixtureRoute), { code: 'INVALID_RESPONSE' }); assert.equal(bridge.pending.size, 0);
 });

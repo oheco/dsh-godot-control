@@ -6,7 +6,31 @@ const source = path.join(root, 'tpr/godot-ai/plugin/addons/godot_ai');
 const output = path.join(root, 'godot/addons/dsh_godot');
 const manifest = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
 const original = await readFile(path.join(source, 'plugin.gd'), 'utf8');
-const transform = text => text.replaceAll('godot_ai', 'dsh_godot').replace(/\bMcp(?=[A-Z])/g, 'DshGodot').replaceAll('_mcp_game_helper', '_dsh_godot_game_helper').replaceAll('mcp:', 'dsh_godot:').replaceAll('CAPTURE_PREFIX := "mcp"', 'CAPTURE_PREFIX := "dsh_godot"').replaceAll('"mcp" capture', '"dsh_godot" capture');
+// Adapt display text without renaming upstream protocol/configuration identifiers.
+const transform = text => text.replaceAll('godot_ai', 'dsh_godot').replace(/\bMcp(?=[A-Z])/g, 'DshGodot').replaceAll('_mcp_game_helper', '_dsh_godot_game_helper').replaceAll('mcp:', 'dsh_godot:').replaceAll('CAPTURE_PREFIX := "mcp"', 'CAPTURE_PREFIX := "dsh_godot"').replaceAll('"mcp" capture', '"dsh_godot" capture')
+  .replaceAll('MCP |', 'DSH Godot |').replaceAll('MCP:', 'DSH Godot:').replaceAll('MCP debugger:', 'DSH Godot | debugger:')
+  .replaceAll('[dsh_godot game_helper] registered mcp capture', 'DSH Godot | game helper registered debugger capture')
+  .replaceAll('the MCP transport was paused', 'the DSH transport was paused');
+function replaceRequired(content, before, after) {
+  if (content.split(before).length !== 2) throw new Error(`Upstream adaptation anchor changed: ${before}`);
+  return content.replace(before, after);
+}
+function adaptConnection(content) {
+  for (const [before, after] of [
+    ['var launch_mode := ClientConfigurator.get_server_launch_mode()', 'var launch_mode := "dsh"'],
+    ['"connected to server; authenticating"', '"connected to DSH; authenticating"'],
+    ['"authenticated with server"', '"authenticated with DSH (session %s, PID %d)" % [_session_id, OS.get_process_id()]'],
+    ['"connecting to server (attempt %d)"', '"connecting to DSH (attempt %d)"'],
+    ['"v4 editor handshake timed out"', '"DSH editor handshake timed out"'],
+    ['"v4 websocket handshake failed: %s"', '"websocket handshake with DSH failed: %s"'],
+    ['The editor and server use different Godot AI major protocols; update/restart both sides.', 'The editor and DSH use different connection protocols; update the DSH plugin and project addon together.'],
+    ['The v4 editor capability was rejected; restart the managed server from this Godot editor.', 'DSH rejected authentication. Check the port and pairing token against the DSH Godot pairing panel.'],
+    ['The v4 handshake closed before authentication; update/restart both editor and server.', 'The connection to DSH closed before authentication. Check the DSH service and this project\'s pairing.'],
+    ['\treturn snapshot\n\n\nfunc _log_blocked_notice_once()', '\tif snapshot.phase == "retrying" and not snapshot.has("reason"):\n\t\tsnapshot["reason_code"] = "dsh_unreachable"\n\t\tsnapshot["reason"] = "Cannot reach DSH. Check that DSH Godot Control is enabled and the pairing port matches."\n\tsnapshot["endpoint"] = "ws://127.0.0.1:%d" % ws_port\n\tsnapshot["editor_pid"] = OS.get_process_id()\n\tsnapshot["session_id"] = _session_id\n\treturn snapshot\n\n\nfunc _log_blocked_notice_once()'],
+    ['\tif code == CLOSE_CODE_PROTOCOL_MISMATCH:\n\t\treturn {', '\tif code == CLOSE_CODE_DUPLICATE_SESSION:\n\t\treturn {\n\t\t\t"reason_code": "duplicate_session",\n\t\t\t"reason": "This session ID is already connected to DSH; retrying with a new ID.",\n\t\t}\n\tif code == CLOSE_CODE_PROTOCOL_MISMATCH:\n\t\treturn {'],
+  ]) content = replaceRequired(content, before, after);
+  return content;
+}
 function adaptFilesystem(content) {
   content = content.replace('`write_file`/`reimport` register single', '`write_file` registers single').replace('used by write_file/reimport/script_create', 'used by write_file/script_create');
   const start = content.indexOf('func reimport(params: Dictionary) -> Dictionary:');
@@ -24,7 +48,7 @@ async function materialize(relative = '') {
     else if (!['plugin.gd', 'plugin.cfg'].includes(name) && !entry.name.endsWith('.uid')) {
       if (entry.name.endsWith('.gd')) {
         let content = transform(await readFile(path.join(source, name), 'utf8'));
-        if (name === 'connection.gd') content = content.replace('var launch_mode := ClientConfigurator.get_server_launch_mode()', 'var launch_mode := "dsh"');
+        if (name === 'connection.gd') content = adaptConnection(content);
         if (name === 'handlers/filesystem_handler.gd') content = adaptFilesystem(content);
         await writeFile(target, content);
       } else await copyFile(path.join(source, name), target);
@@ -44,7 +68,7 @@ let registration = original.slice(original.indexOf('\tvar undo := get_undo_redo(
 registration = registration.replace(/\n\t_dispatcher\.register_lazy_handler\(\n\t\t"client",[\s\S]*?\n\t\)/, '').replace(/\n\t_dispatcher\.register_lazy\("(?:configure_client|remove_client|check_client_status)"[^\n]*/g, '');
 const template = await readFile(path.join(root, 'godot/plugin.gd'), 'utf8');
 await writeFile(path.join(output, 'plugin.gd'), template.replace('\t# @REGISTRATION@', transform(registration)));
-await writeFile(path.join(output, 'plugin.cfg'), `[plugin]\nname="DSH Godot Control"\ndescription="Native DSH editor tools; no Python or MCP server."\nauthor="oheco; Godot AI contributors"\nversion="${manifest.version}"\nscript="plugin.gd"\n`);
+await writeFile(path.join(output, 'plugin.cfg'), `[plugin]\nname="DSH Godot Control"\ndescription="Connect this Godot editor to DSH for editor and runtime tools."\nauthor="oheco; Godot AI contributors"\nversion="${manifest.version}"\nscript="plugin.gd"\n`);
 await copyFile(path.join(root, 'tpr/godot-ai/LICENSE'), path.join(output, 'LICENSE.godot-ai'));
 const commands = [];
 const readers = new Set(['load_resource', 'shader_validate', 'animation_validate', 'visual_shader_node_catalog', 'visual_shader_get', 'material_get', 'material_list', 'particle_get', 'camera_get', 'camera_list', 'audio_list', 'tilemap_get_cells', 'tileset_get_atlas_tiles', 'tileset_get_atlas_image', 'gridmap_get_used_cells', 'gridmap_list_library_items', 'navigation_path_get', 'animation_list', 'animation_get']);

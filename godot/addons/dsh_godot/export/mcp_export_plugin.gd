@@ -52,7 +52,7 @@ func _export_begin(_features: PackedStringArray, _is_debug: bool, _path: String,
 	## Setting a project setting to null erases it.
 	ProjectSettings.set_setting(AUTOLOAD_KEY, null)
 	_stripped = true
-	print("MCP | export: stripping %s from the exported pack (restored in the editor after export)" % AUTOLOAD_KEY)
+	print("DSH Godot | export: stripping %s from the exported pack (restored in the editor after export)" % AUTOLOAD_KEY)
 
 
 func _export_end() -> void:

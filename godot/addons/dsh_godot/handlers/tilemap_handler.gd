@@ -28,7 +28,7 @@ func set_cell(params: Dictionary) -> Dictionary:
 	var src   := int(params.get("source_id", 0))
 	var atlas := Vector2i(params.get("atlas_col", 0), params.get("atlas_row", 0))
 	var prev := _capture_cell_state(node, pos)
-	_undo_redo.create_action("MCP: TileMap set_cell")
+	_undo_redo.create_action("DSH Godot: TileMap set_cell")
 	_undo_redo.add_do_method(node, "set_cell", pos, src, atlas)
 	_undo_redo.add_undo_method(self, "_restore_cell_state", node, pos, prev)
 	_undo_redo.commit_action()
@@ -65,7 +65,7 @@ func set_cells_rect(params: Dictionary) -> Dictionary:
 			var pos := Vector2i(x, y)
 			cells.append(pos)
 			snapshot.append({"pos": pos, "state": _capture_cell_state(node, pos)})
-	_undo_redo.create_action("MCP: TileMap set_cells_rect %dx%d" % [rw, rh])
+	_undo_redo.create_action("DSH Godot: TileMap set_cells_rect %dx%d" % [rw, rh])
 	for pos in cells:
 		_undo_redo.add_do_method(node, "set_cell", pos, src, atlas)
 	_undo_redo.add_undo_method(self, "_restore_rect_snapshot", node, snapshot)
@@ -82,7 +82,7 @@ func clear_layer(params: Dictionary) -> Dictionary:
 	if layer.has("error"): return layer
 	var node: TileMapLayer = layer.node
 	var snapshot := _capture_used_cells_snapshot(node)
-	_undo_redo.create_action("MCP: TileMap clear")
+	_undo_redo.create_action("DSH Godot: TileMap clear")
 	_undo_redo.add_do_method(node, "clear")
 	_undo_redo.add_undo_method(self, "_restore_cells_snapshot", node, snapshot)
 	_undo_redo.commit_action()

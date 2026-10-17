@@ -153,7 +153,7 @@ func set_param(params: Dictionary) -> Dictionary:
 
 	var old_value = mat.get(property)
 
-	_undo_redo.create_action("MCP: Set material %s.%s" % [mat_path.get_file(), property])
+	_undo_redo.create_action("DSH Godot: Set material %s.%s" % [mat_path.get_file(), property])
 	_undo_redo.add_do_method(self, "_apply_param", mat_path, property, new_value, false)
 	_undo_redo.add_undo_method(self, "_apply_param", mat_path, property, old_value, false)
 	_undo_redo.commit_action()
@@ -215,7 +215,7 @@ func set_shader_param(params: Dictionary) -> Dictionary:
 
 	var old_value = shader_mat.get_shader_parameter(param_name)
 
-	_undo_redo.create_action("MCP: Set shader param %s.%s" % [mat_path.get_file(), param_name])
+	_undo_redo.create_action("DSH Godot: Set shader param %s.%s" % [mat_path.get_file(), param_name])
 	_undo_redo.add_do_method(self, "_apply_shader_param", mat_path, param_name, new_value)
 	_undo_redo.add_undo_method(self, "_apply_shader_param", mat_path, param_name, old_value)
 	_undo_redo.commit_action()
@@ -413,7 +413,7 @@ func assign_material(params: Dictionary) -> Dictionary:
 
 	var old_value = node.get(property)
 
-	_undo_redo.create_action("MCP: Assign material to %s.%s" % [node.name, property])
+	_undo_redo.create_action("DSH Godot: Assign material to %s.%s" % [node.name, property])
 	_undo_redo.add_do_property(node, property, mat)
 	_undo_redo.add_undo_property(node, property, old_value)
 	if material_created:
@@ -509,7 +509,7 @@ func apply_to_node(params: Dictionary) -> Dictionary:
 
 	var old_value = node.get(property)
 
-	_undo_redo.create_action("MCP: Apply %s material to %s" % [type_str, node.name])
+	_undo_redo.create_action("DSH Godot: Apply %s material to %s" % [type_str, node.name])
 	_undo_redo.add_do_property(node, property, mat)
 	_undo_redo.add_undo_property(node, property, old_value)
 	_undo_redo.add_do_reference(mat)
@@ -626,7 +626,7 @@ func apply_preset(params: Dictionary) -> Dictionary:
 		var property: String = slot_result.property
 		var saved_mat := ResourceLoader.load(path)
 		var old_value = node.get(property)
-		_undo_redo.create_action("MCP: Apply preset %s to %s" % [preset_name, node.name])
+		_undo_redo.create_action("DSH Godot: Apply preset %s to %s" % [preset_name, node.name])
 		_undo_redo.add_do_property(node, property, saved_mat)
 		_undo_redo.add_undo_property(node, property, old_value)
 		_undo_redo.commit_action()
@@ -654,7 +654,7 @@ func apply_preset(params: Dictionary) -> Dictionary:
 func _apply_param(mat_path: String, property: String, value: Variant, _is_shader: bool) -> void:
 	var mat: Material = ResourceLoader.load(mat_path)
 	if mat == null:
-		push_warning("MCP: Failed to load material for undo/redo: %s" % mat_path)
+		push_warning("DSH Godot: Failed to load material for undo/redo: %s" % mat_path)
 		return
 	mat.set(property, value)
 	DshGodotResourceIO.guarded_save(mat, mat_path, _connection)
@@ -663,7 +663,7 @@ func _apply_param(mat_path: String, property: String, value: Variant, _is_shader
 func _apply_shader_param(mat_path: String, param_name: String, value: Variant) -> void:
 	var mat: Material = ResourceLoader.load(mat_path)
 	if mat == null or not (mat is ShaderMaterial):
-		push_warning("MCP: Failed to load shader material for undo/redo: %s" % mat_path)
+		push_warning("DSH Godot: Failed to load shader material for undo/redo: %s" % mat_path)
 		return
 	(mat as ShaderMaterial).set_shader_parameter(param_name, value)
 	DshGodotResourceIO.guarded_save(mat, mat_path, _connection)
